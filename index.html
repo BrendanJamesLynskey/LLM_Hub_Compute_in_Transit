@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compute in Transit &mdash; LLM Hub</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Geist+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1c1815; --bg-card: #231e1a; --bg-code: #2b2520;
+            --text-primary: #efe8dc; --text-secondary: #a2978b;
+            --accent: #6cb6c4; --accent-dim: #6cb6c444; --accent-glow: #6cb6c433;
+            --border: #3a322b;
+            --font-display: 'Bricolage Grotesque', sans-serif;
+            --font-mono: 'Geist Mono', 'Geist Mono', monospace;
+            --font-body: 'Instrument Sans', sans-serif;
+            --max-width: 960px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg-primary); color: var(--text-primary);
+               font-family: var(--font-body); font-size: 17px; line-height: 1.7;
+               overflow-x: hidden; }
+        .hero { min-height: 60vh; display: flex; flex-direction: column;
+                justify-content: center; align-items: center;
+                padding: 4rem 1.5rem 3rem; text-align: center; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 50%;
+                        transform: translateX(-50%); width: 600px; height: 600px;
+                        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+                        pointer-events: none; z-index: 0; }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label { font-family: var(--font-mono); font-size: 0.85rem;
+                        color: var(--accent); letter-spacing: 0.15em;
+                        text-transform: uppercase; margin-bottom: 1rem; }
+        .hero h1 { font-family: var(--font-display);
+                   font-size: clamp(2rem, 5vw, 3rem); font-weight: 700;
+                   color: var(--text-primary); line-height: 1.2; margin-bottom: 1rem; }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle { font-size: 1.1rem; color: var(--text-secondary);
+                          max-width: 720px; margin-bottom: 1.5rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem;
+                justify-content: center; margin-bottom: 1rem; }
+        .tag { font-family: var(--font-mono); font-size: 0.75rem;
+               padding: 0.25rem 0.75rem; border-radius: 999px;
+               border: 1px solid var(--accent); color: var(--accent);
+               background: var(--accent-dim); white-space: nowrap; }
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 2rem 1.5rem; }
+        h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+             color: var(--accent); margin: 1rem 0 1.25rem; }
+        .deck-list { display: flex; flex-direction: column; gap: 0.6rem;
+                     list-style: none; padding: 0; counter-reset: deck; }
+        .deck-card { display: flex; gap: 1rem; padding: 1rem 1.25rem;
+                     background: var(--bg-card); border: 1px solid var(--border);
+                     border-left: 3px solid var(--accent); border-radius: 6px;
+                     transition: border-color 0.15s; counter-increment: deck; }
+        .deck-card:hover { border-color: var(--accent); }
+        .deck-card.roadmap { border-left-color: #e3b174; }
+        .deck-card.roadmap:hover { border-color: #e3b174; }
+        .deck-card .num { font-family: var(--font-mono); font-size: 0.8rem;
+                          color: var(--accent); min-width: 2rem;
+                          padding-top: 0.15rem; }
+        .deck-card.roadmap .num { color: #e3b174; }
+        .deck-card .num::before { content: counter(deck, decimal-leading-zero); }
+        .deck-card .body { flex: 1; min-width: 0; }
+        .deck-card .deck-title { font-family: var(--font-display); font-size: 1.05rem;
+                                 font-weight: 600; color: var(--text-primary);
+                                 margin-bottom: 0.2rem; }
+        .deck-card a.deck-title { text-decoration: none; }
+        .deck-card a.deck-title:hover { color: var(--accent); }
+        .deck-card .desc { font-size: 0.92rem; color: var(--text-secondary); }
+        .deck-card .meta { font-family: var(--font-mono); font-size: 0.7rem;
+                           color: var(--text-secondary); margin-top: 0.4rem;
+                           display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .badge { display: inline-block; font-family: var(--font-mono);
+                 font-size: 0.65rem; padding: 0.1rem 0.5rem; border-radius: 999px;
+                 border: 1px solid var(--border); color: var(--text-secondary); }
+        .badge.live { border-color: var(--accent); color: var(--accent);
+                      background: var(--accent-dim); }
+        .badge.roadmap { border-color: #e3b174; color: #e3b174;
+                         background: rgba(227,177,116,0.08); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent);
+                   border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+        .callout p { margin-bottom: 0; color: var(--text-secondary); }
+        .callout p strong { color: var(--text-primary); }
+        .footer { text-align: center; padding: 3rem 1.5rem;
+                  color: var(--text-secondary); font-size: 0.85rem;
+                  border-top: 1px solid var(--border); max-width: var(--max-width);
+                  margin: 3rem auto 0; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.8rem; }
+            .deck-card { flex-direction: column; gap: 0.3rem; }
+        }
+            .deck-card.code { border-left-color: #97cdc6; }
+        .deck-card.code .num { color: #97cdc6; }
+        .deck-card.code .num::before { content: none; }
+        .badge.code { border-color: #97cdc6; color: #97cdc6; background: rgba(151,205,198,0.08); }
+    </style>
+
+<style>:root{font-synthesis-weight:none}        .deck-card.code { border-left-color: #97cdc6; }
+        .deck-card.code .num { color: #97cdc6; }
+        .deck-card.code .num::before { content: none; }
+        .badge.code { border-color: #97cdc6; color: #97cdc6; background: rgba(151,205,198,0.08); }
+        h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--accent); margin: 1.6rem 0 0.6rem; }
+        .gloss-intro { color: var(--text-secondary); margin-bottom: 0.5rem; }
+        dl.gloss dt { font-weight: 700; margin-top: 0.9rem; scroll-margin-top: 1rem; }
+        dl.gloss dt:target { color: var(--accent); }
+        dl.gloss dd { margin: 0.2rem 0 0 0; font-size: 0.92rem; color: var(--text-secondary); }
+        dl.gloss dd .where { display: block; margin-top: 0.25rem; font-size: 0.85rem; }
+        dl.gloss a, .gloss-intro a { color: var(--accent); }
+        .callout a { color: var(--accent); }
+        .hero { overflow: hidden; }   /* the 600px glow must not widen the page on phones */
+    </style>
+</head>
+
+<body>
+<header class="hero">
+    <div class="series-label">LLM Hub &mdash; Compute in Transit</div>
+    <h1>Compute in <span class="accent">Transit</span></h1>
+    <p class="subtitle">Moving data now bounds much of LLM training and serving. Optalysys has demonstrated a photonic link module that computes on data as it crosses a link: FFT, NTT, modular arithmetic and MAC, in a QSFP56 pluggable. Three decks ask which LLM data movements it could work on, how much work each needs per byte, and why the strongest candidate is in training, not inference.</p>
+    <div class="tags"><span class="tag">Compute in transit</span><span class="tag">Operations per byte</span><span class="tag">In-network aggregation</span><span class="tag">DiLoCo / DeMo</span><span class="tag">KV hand-off and tiering</span><span class="tag">3 decks live</span></div>
+</header>
+<main class="container">
+    <h2>Presentations in This Series</h2>
+    <ol class="deck-list">
+    <li class="deck-card"><div class="num"></div><div class="body"><a class="deck-title" href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/">Compute in Transit: the Idea and the Budget &rarr;</a><div class="desc">Where computation can sit on a data path (endpoint, link, switch); Optalysys&rsquo;s photonic link module and what its paper shows; the published operation set and what it lacks; the operations-per-byte budget, with an interactive calculator; whether the optical transform counts against it; precision, energy, and five tests every candidate must pass.</div><div class="meta"><span class="badge live">live</span><span>Placement &middot; Operation set &middot; Budget &middot; Five tests</span></div></div></li>
+    <li class="deck-card"><div class="num"></div><div class="body"><a class="deck-title" href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/">Data Movement in LLM Training &rarr;</a><div class="desc">The traffic each kind of parallelism creates and how big it is; ring all-reduce; in-network aggregation; low-communication training (DiLoCo, Streaming DiLoCo, MuLoCo, SparseLoCo); FFT and DCT gradient compression; DeMo mapped onto the module; the planned fixed-frequency-band experiment.</div><div class="meta"><span class="badge live">live</span><span>All-reduce &middot; SwitchML &middot; DiLoCo &middot; DeMo</span></div></div></li>
+    <li class="deck-card"><div class="num"></div><div class="body"><a class="deck-title" href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/">Data Movement in LLM Inference &rarr;</a><div class="desc">The KV hand-off and when it binds, with an interactive sizer; quantised and transform-domain KV compression; KV tiering and prefix caching; query-aware KV selection; ring attention; MoE all-to-all; weight streaming; confidential AI; the candidate table and what a simulator needs.</div><div class="meta"><span class="badge live">live</span><span>KV hand-off &middot; KV tiering &middot; Quest &middot; Candidate table</span></div></div></li>
+    <li class="deck-card roadmap"><div class="num"></div><div class="body"><span class="deck-title">The Fixed-Band Experiment</span><div class="desc">DeMo with top-k replaced by a fixed frequency band, with the optics emulated (noise, native transform size): validation loss against bytes communicated, then a discrete-event model of the wall-clock gain across data centres.</div><div class="meta"><span class="badge roadmap">roadmap</span><span>Planned</span></div></div></li>
+    </ol>
+
+    <h2>Analysis and Code</h2>
+    <ol class="deck-list" style="counter-reset: none;">
+    <li class="deck-card code"><div class="num">&lt;/&gt;</div><div class="body"><a class="deck-title" href="https://github.com/BrendanJamesLynskey/LLM_Hub_Compute_in_Transit/tree/main/analysis">analysis/ &rarr;</a><div class="desc">cit_budget.py: the operations-per-byte budget; the work per byte of candidate kernels with the transform charged or free; training sync sizes and link times for Llama-3-8B and -70B; KV hand-off and weight-load sizes; a fixed frequency band against top-k on synthetic signals. results.md is the source of every number in the decks; pytest checks the conventions.</div><div class="meta"><span class="badge code">code</span><span>Python &middot; NumPy &middot; pytest</span></div></div></li>
+    <li class="deck-card code"><div class="num">&lt;/&gt;</div><div class="body"><a class="deck-title" href="https://github.com/BrendanJamesLynskey/Disaggregated_Inference_Sim">Disaggregated_Inference_Sim &rarr;</a><div class="desc">The SimPy disaggregated-serving simulator of the sister series: the model shapes and link presets used here, and the KV hand-off compression results (in transit and at the GPU) that decks 01 and 03 cite.</div><div class="meta"><span class="badge code">code</span><span>SimPy &middot; JavaScript port</span></div></div></li>
+    </ol>
+
+    <div class="callout">
+        <p><strong>How to read this series.</strong> Deck 01 sets out the idea, the hardware as published, and the budget every candidate must fit. Deck 02 goes through training traffic and ends with the experiment; deck 03 does the same for inference. Every number comes from <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Compute_in_Transit/blob/main/analysis/results.md">analysis/results.md</a> or a cited source, and illustrative figures are labelled where they are used.</p>
+    </div>
+    <div class="callout">
+        <p><strong>Optalysys and this series.</strong> Optalysys publicly describes Compute-in-Transit and lists generative AI among its targets, but its only published evaluation is FHE (CKKS bootstrapping). Everything here about applying it to LLM training or inference traffic is this series&rsquo; own analysis, attributed to no company.</p>
+    </div>
+
+    <h2 id="glossary">Glossary: Concepts and Where They Are Explained</h2>
+    <p class="gloss-intro">Every concept the decks rely on, with a short explanation and links to the slides that explain it. Concepts the sister series already explain are linked, not repeated: <a href="https://brendanjameslynskey.github.io/LLM_Hub_Fourier_Optics_Inference/#glossary">Fourier Optics for Inference</a> (the lens as a Fourier transformer, the 4f system, the noise rule, conversion energy), <a href="https://brendanjameslynskey.github.io/LLM_Hub_Inference_Simulators/#glossary">LLM Inference Simulators</a> (prefill and decode, the KV cache, disaggregation) and <a href="https://brendanjameslynskey.github.io/FHE_Hub_Accelerator_Simulators/#glossary">FHE Accelerator Simulators</a> (NTTs, digit planes, ENOB).</p>
+    <h3>The idea and the hardware</h3>
+    <dl class="gloss">
+    <dt id="g-cit">Compute in transit</dt>
+    <dd>Computation applied in the data path, on data that must move anyway, instead of fetching it to a processor and sending it back. It helps only where the transfer bounds the system.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-02">CiT 01 &middot; slide 02</a></span></dd>
+    <dt id="g-placement">Placement: endpoint, link, switch</dt>
+    <dd>Where the work sits decides what it can see: an endpoint sees its own data, a pluggable link module sees one flow at line rate, and a switch sees many flows, so only a switch can combine streams.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-02">CiT 01 &middot; slide 02</a></span></dd>
+    <dt id="g-module">Photonic link module</dt>
+    <dd>Optalysys's QSFP56 pluggable with an integrated optical Fourier transform device, reported to run FFT, NTT, modular arithmetic and MAC on link traffic at &ldquo;tens of GFLOPs&rdquo; (the authors' claim, evaluated on CKKS bootstrapping; arXiv:2608.21536).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-03">CiT 01 &middot; slide 03</a></span></dd>
+    <dt id="g-opset">Published operation set</dt>
+    <dd>The operations the public sources list for the module: FFT, NTT, modular arithmetic and MAC. Comparisons, rounding, top-k selection and data-dependent control are not listed, so a kernel must apply the same arithmetic to every value.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-04">CiT 01 &middot; slide 04</a></span></dd>
+    <dt id="g-recombine">Recombined optical transforms</dt>
+    <dd>Small, low-precision on-die optical transforms (4 points per stage in Optalysys's 2023 description) combined into larger, higher-precision power-of-2 FFTs or NTTs.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-05">CiT 01 &middot; slide 05</a></span></dd>
+    <dt id="g-opsperbyte">Operations per byte</dt>
+    <dd>A link module's compute rate divided by its line rate: the arithmetic it can apply to each byte without slowing the link. 0.40 to 3.96 on a QSFP56 link, reading &ldquo;tens of GFLOPs&rdquo; as 10 to 99 GFLOP/s.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-06">CiT 01 &middot; slide 06</a>; <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-05">CiT 02 &middot; slide 05</a></span></dd>
+    <dt id="g-charged">Transform charged or free</dt>
+    <dd>Whether the optical transform's FLOPs count against the budget. Charged, only BF16 FFTs up to length 8 fit; free, every fixed-band kernel fits and only the remaining arithmetic counts. Public sources do not say which.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-07">CiT 01 &middot; slide 07</a></span></dd>
+    <dt id="g-noiseexact">Noise against exactness</dt>
+    <dd>Floating-point traffic needs only a noise level that matches its format's own rounding error; cryptography needs exact results, which the optics reaches by decomposition into smaller exact pieces.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-08">CiT 01 &middot; slide 08</a></span></dd>
+    <dt id="g-pjbit">Link energy per bit</dt>
+    <dd>Energy to move one bit over a link. Optalysys estimates 2.76 pJ/bit for its 45 nm silicon photonics, excluding the laser; the simulator's whole-path link presets (3 to 15 pJ/bit) are illustrative and not directly comparable.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-09">CiT 01 &middot; slide 09</a></span></dd>
+    <dt id="g-fivetests">The five tests</dt>
+    <dd>Bottleneck (is the transfer what bounds the system), operations (built only from the published set), budget (fits the operations per byte), precision (tolerates noise or can be exact) and placement (one flow or many).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-10">CiT 01 &middot; slide 10</a>; <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-11">CiT 03 &middot; slide 11</a></span></dd>
+    <dt id="g-transportbound">Transport-bound</dt>
+    <dd>A system whose time or throughput is set by a link, the only case in which compressing that link's traffic helps. In the simulator the KV hand-off bound serving only over slow links near saturation.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-10">CiT 01 &middot; slide 10</a>; <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-03">CiT 03 &middot; slide 03</a></span></dd>
+    </dl>
+    <h3>Training traffic</h3>
+    <dl class="gloss">
+    <dt id="g-paralleltraffic">The traffic of each kind of parallelism</dt>
+    <dd>Data parallel moves gradients; FSDP/ZeRO moves weights and gradients; tensor and pipeline parallel move activations; ring attention moves KV blocks; expert parallel moves tokens.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-01">CiT 02 &middot; slide 01</a></span></dd>
+    <dt id="g-fsdp">FSDP and ZeRO</dt>
+    <dd>Each worker holds a shard of the weights, gradients and optimiser state; it all-gathers the weights before use and reduce-scatters the gradients after the backward pass.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-01">CiT 02 &middot; slide 01</a></span></dd>
+    <dt id="g-ringallreduce">Ring all-reduce</dt>
+    <dd>A reduce-scatter then an all-gather round a ring of N workers; each sends 2(N&minus;1)/N times the buffer, close to twice the buffer whatever N is. The arithmetic is one add per value.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-03">CiT 02 &middot; slide 03</a></span></dd>
+    <dt id="g-ina">In-network aggregation</dt>
+    <dd>Summing workers' updates inside switches (SwitchML on programmable switches, reporting up to 5.5&times; training speed-up; SHARP in InfiniBand). The flows must meet, so it belongs in a switch, not in a module on one link.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-05">CiT 02 &middot; slide 05</a>; <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-08">CiT 03 &middot; slide 08</a></span></dd>
+    <dt id="g-diloco">Low-communication training (DiLoCo family)</dt>
+    <dd>Workers take many local optimiser steps, then exchange a pseudo-gradient and apply one outer step. DiLoCo, Streaming DiLoCo, MuLoCo and SparseLoCo cut how often and how much is sent, for training across data centres.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-06">CiT 02 &middot; slide 06</a></span></dd>
+    <dt id="g-errorfeedback">Error feedback</dt>
+    <dd>Keeping the part of an update that compression discarded and adding it back next time, so the error is delayed rather than lost.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-06">CiT 02 &middot; slide 06</a></span></dd>
+    <dt id="g-freqcompress">Frequency-domain gradient compression</dt>
+    <dd>Transforming a gradient or momentum tensor (FFT or DCT) and sending only some coefficients, on the premise that its energy sits in a few of them (Wang et al., HPDC 2020).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-07">CiT 02 &middot; slide 07</a></span></dd>
+    <dt id="g-demo">DeMo (decoupled momentum)</dt>
+    <dd>Each worker keeps its own momentum, applies a DCT to it in chunks, sends the top-k components and subtracts what it sent; the paper reports up to 85&times; less data per GPU than AdamW-DDP at comparable loss (ICLR 2026).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-08">CiT 02 &middot; slide 08</a></span></dd>
+    <dt id="g-fixedband">Fixed band in place of top-k</dt>
+    <dd>Keeping a fixed set of transform coefficients instead of the largest ones: a gather with no comparisons, so it suits the published operations, but it keeps the energy only if the energy sits in that band.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-04">CiT 01 &middot; slide 04</a>; <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-09">CiT 02 &middot; slide 09</a></span></dd>
+    <dt id="g-experiment">The fixed-band experiment</dt>
+    <dd>The planned test: DeMo with top-k replaced by a fixed frequency band, with the optics emulated, measured as validation loss against bytes communicated.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-10">CiT 02 &middot; slide 10</a></span></dd>
+    </dl>
+    <h3>Inference traffic</h3>
+    <dl class="gloss">
+    <dt id="g-kvpertoken">KV bytes per token</dt>
+    <dd>A model's KV cache per prompt token: 131,072 bytes for Llama-3-8B and 327,680 for Llama-3-70B in BF16, so hand-offs grow linearly with the prompt.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-02">CiT 03 &middot; slide 02</a></span></dd>
+    <dt id="g-handoff">KV hand-off</dt>
+    <dd>Moving a request's KV cache from the prefill pool that built it to the decode pool that uses it, in disaggregated serving.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-03">CiT 03 &middot; slide 03</a></span></dd>
+    <dt id="g-keepk">Frequency keep-k KV compression</dt>
+    <dd>Transforming KV along the token axis and keeping a fixed band of components (FreqKV keeps half by default): an FFT and a gather, inside the published operations.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-04">CiT 03 &middot; slide 04</a></span></dd>
+    <dt id="g-kvquant">KV-cache quantisation</dt>
+    <dd>Storing KV at 2 to 4 bits (KIVI, KVQuant). It needs block maxima and rounding, which are outside the published operation set.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-04">CiT 03 &middot; slide 04</a></span></dd>
+    <dt id="g-tiering">KV tiering and prefix caching</dt>
+    <dd>Keeping KV in CPU memory, SSD or a shared pool and fetching it back when a prefix is reused (LMCache, Mooncake): the series' best inference candidate.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-05">CiT 03 &middot; slide 05</a></span></dd>
+    <dt id="g-qaware">Query-aware KV selection</dt>
+    <dd>Scoring page summaries against the query and fetching only the top pages (Quest). Scoring is MAC, 1 operation per BF16 byte; ranking needs comparisons.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-06">CiT 03 &middot; slide 06</a></span></dd>
+    <dt id="g-prism">Photonic similarity engine (PRISM)</dt>
+    <dd>A proposed photonic engine, by other authors, that ranks KV blocks by inner product at low precision: evidence that KV selection is being explored optically.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-06">CiT 03 &middot; slide 06</a></span></dd>
+    <dt id="g-ringattention">Ring attention (context parallelism)</dt>
+    <dd>Splitting a long sequence across devices and passing KV blocks round a ring at every layer, overlapped with blockwise exact attention. Its transfers are usually hidden behind compute.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-01">CiT 02 &middot; slide 01</a>; <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-07">CiT 03 &middot; slide 07</a></span></dd>
+    <dt id="g-alltoall">MoE all-to-all</dt>
+    <dd>Expert parallelism sends each token's activation to the device holding its expert and back, every MoE layer.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-01">CiT 02 &middot; slide 01</a>; <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-08">CiT 03 &middot; slide 08</a></span></dd>
+    <dt id="g-mlkem">ML-KEM (FIPS 203)</dt>
+    <dd>NIST's lattice-based post-quantum key encapsulation. Its polynomial arithmetic uses NTTs, which suit the module, but handshakes are only kilobytes.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-10">CiT 03 &middot; slide 10</a></span></dd>
+    <dt id="g-linkkernel">Link kernel</dt>
+    <dd>A simulator abstraction for work done on a link: it declares operations per byte, operation types, precision need, compression ratio and placement (pluggable or switch).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-12">CiT 03 &middot; slide 12</a></span></dd>
+    </dl>
+</main>
+
+<footer class="footer">
+    <p>Part of the <a href="https://github.com/BrendanJamesLynskey/LLMs">LLMs hub</a> &mdash; an index of presentation series for AI/LLM engineers.</p>
+    <p style="margin-top: 0.5rem;">Sister series: <a href="https://brendanjameslynskey.github.io/LLM_Hub_Fourier_Optics_Inference/">Fourier Optics for Inference</a> (the optics and its bill; optical prefill pools) &middot; <a href="https://brendanjameslynskey.github.io/LLM_Hub_Inference_Simulators/">LLM Inference Simulators</a> &middot; <a href="https://brendanjameslynskey.github.io/FHE_Hub_Accelerator_Simulators/">FHE Accelerator Simulators</a> &middot; <a href="https://brendanjameslynskey.github.io/SimEng_Hub_Toolkit/">Simulation Engineering Toolkit</a>.</p>
+</footer>
+
+</body>
+</html>
