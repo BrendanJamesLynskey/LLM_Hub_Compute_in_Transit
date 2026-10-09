@@ -48,3 +48,27 @@ def test_kernel_rows_are_consistent():
     for k in C.kernels():
         assert k["transform_per_byte"] >= 0 and k["other_per_byte"] >= 0
         assert not (math.isnan(k["transform_per_byte"]) or math.isnan(k["other_per_byte"]))
+
+
+def test_results_json_is_machine_independent(tmp_path, monkeypatch):
+    # Two runs give byte-identical JSON, and nudging every non-integral float by one ulp (as another
+    # machine might) does not change what is written.
+    import json
+    monkeypatch.setattr(C, "HERE", tmp_path)
+    C.main()
+    first = (tmp_path / "results.json").read_bytes()
+    C.main()
+    assert (tmp_path / "results.json").read_bytes() == first
+
+    def nudge(obj, direction):
+        if isinstance(obj, dict):
+            return {k: nudge(v, direction) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [nudge(v, direction) for v in obj]
+        if isinstance(obj, float) and math.isfinite(obj) and not obj.is_integer():
+            return float(np.nextafter(obj, direction * math.inf))
+        return obj
+
+    raw = json.loads(first)
+    for direction in (1, -1):
+        assert json.dumps(C.rounded(nudge(raw, direction)), indent=1).encode() == first

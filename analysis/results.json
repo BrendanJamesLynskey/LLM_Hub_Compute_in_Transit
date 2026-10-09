@@ -160,7 +160,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "none",
-    "seconds": 0.03569386670222222
+    "seconds": 0.0356939
    },
    {
     "model": "Llama-3-8B",
@@ -168,7 +168,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "FP8 (2x)",
-    "seconds": 0.017849433351111114
+    "seconds": 0.0178494
    },
    {
     "model": "Llama-3-8B",
@@ -176,7 +176,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "2-bit (8x)",
-    "seconds": 0.004466108337777778
+    "seconds": 0.00446611
    },
    {
     "model": "Llama-3-8B",
@@ -184,7 +184,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.0004248690200261438
+    "seconds": 0.000424869
    },
    {
     "model": "Llama-3-8B",
@@ -192,7 +192,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "none",
-    "seconds": 0.32120980032
+    "seconds": 0.32121
    },
    {
     "model": "Llama-3-8B",
@@ -200,7 +200,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "FP8 (2x)",
-    "seconds": 0.16060990016
+    "seconds": 0.16061
    },
    {
     "model": "Llama-3-8B",
@@ -208,7 +208,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "2-bit (8x)",
-    "seconds": 0.040159975040000004
+    "seconds": 0.04016
    },
    {
     "model": "Llama-3-8B",
@@ -216,7 +216,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.003788821180235294
+    "seconds": 0.00378882
    },
    {
     "model": "Llama-3-8B",
@@ -224,7 +224,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "none",
-    "seconds": 1.28481920128
+    "seconds": 1.28482
    },
    {
     "model": "Llama-3-8B",
@@ -232,7 +232,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "FP8 (2x)",
-    "seconds": 0.64241960064
+    "seconds": 0.64242
    },
    {
     "model": "Llama-3-8B",
@@ -240,7 +240,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "2-bit (8x)",
-    "seconds": 0.16061990016
+    "seconds": 0.16062
    },
    {
     "model": "Llama-3-8B",
@@ -248,7 +248,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.015135284720941175
+    "seconds": 0.0151353
    },
    {
     "model": "Llama-3-8B",
@@ -256,7 +256,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "none",
-    "seconds": 5.13921680512
+    "seconds": 5.13922
    },
    {
     "model": "Llama-3-8B",
@@ -264,7 +264,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "FP8 (2x)",
-    "seconds": 2.56961840256
+    "seconds": 2.56962
    },
    {
     "model": "Llama-3-8B",
@@ -272,7 +272,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "2-bit (8x)",
-    "seconds": 0.64241960064
+    "seconds": 0.64242
    },
    {
     "model": "Llama-3-8B",
@@ -280,7 +280,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.060481138883764704
+    "seconds": 0.0604811
    },
    {
     "model": "Llama-3-70B",
@@ -288,7 +288,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "none",
-    "seconds": 0.31357116704
+    "seconds": 0.313571
    },
    {
     "model": "Llama-3-70B",
@@ -296,7 +296,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "FP8 (2x)",
-    "seconds": 0.15678808352
+    "seconds": 0.156788
    },
    {
     "model": "Llama-3-70B",
@@ -304,7 +304,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "2-bit (8x)",
-    "seconds": 0.03920077088
+    "seconds": 0.0392008
    },
    {
     "model": "Llama-3-70B",
@@ -312,7 +312,7 @@
     "link_name": "NVLink 4 (one direction)",
     "gbps": 450.0,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.003694013729882353
+    "seconds": 0.00369401
    },
    {
     "model": "Llama-3-70B",
@@ -320,7 +320,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "none",
-    "seconds": 2.82210550336
+    "seconds": 2.82211
    },
    {
     "model": "Llama-3-70B",
@@ -328,7 +328,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "FP8 (2x)",
-    "seconds": 1.41105775168
+    "seconds": 1.41106
    },
    {
     "model": "Llama-3-70B",
@@ -336,7 +336,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "2-bit (8x)",
-    "seconds": 0.35277193792
+    "seconds": 0.352772
    },
    {
     "model": "Llama-3-70B",
@@ -344,7 +344,7 @@
     "link_name": "InfiniBand NDR 400G",
     "gbps": 50.0,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.03321112356894118
+    "seconds": 0.0332111
    },
    {
     "model": "Llama-3-70B",
@@ -352,7 +352,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "none",
-    "seconds": 11.288402013439999
+    "seconds": 11.2884
    },
    {
     "model": "Llama-3-70B",
@@ -360,7 +360,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "FP8 (2x)",
-    "seconds": 5.64421100672
+    "seconds": 5.64421
    },
    {
     "model": "Llama-3-70B",
@@ -368,7 +368,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "2-bit (8x)",
-    "seconds": 1.4110677516799999
+    "seconds": 1.41107
    },
    {
     "model": "Llama-3-70B",
@@ -376,7 +376,7 @@
     "link_name": "100 GbE",
     "gbps": 12.5,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.1328244942757647
+    "seconds": 0.132824
    },
    {
     "model": "Llama-3-70B",
@@ -384,7 +384,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "none",
-    "seconds": 45.15354805376
+    "seconds": 45.1535
    },
    {
     "model": "Llama-3-70B",
@@ -392,7 +392,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "FP8 (2x)",
-    "seconds": 22.57678402688
+    "seconds": 22.5768
    },
    {
     "model": "Llama-3-70B",
@@ -400,7 +400,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "2-bit (8x)",
-    "seconds": 5.64421100672
+    "seconds": 5.64421
    },
    {
     "model": "Llama-3-70B",
@@ -408,7 +408,7 @@
     "link_name": "25 GbE",
     "gbps": 3.125,
     "ratio": "DeMo reported (85x)",
-    "seconds": 0.5312379771030589
+    "seconds": 0.531238
    }
   ]
  },
@@ -419,122 +419,122 @@
     "prompt": 2048,
     "kv_bytes": 268435456.0,
     "link": "nvlink4",
-    "ms": 0.6015232355555556
+    "ms": 0.601523
    },
    {
     "model": "Llama-3-8B",
     "prompt": 2048,
     "kv_bytes": 268435456.0,
     "link": "ib-ndr",
-    "ms": 5.378709119999999
+    "ms": 5.37871
    },
    {
     "model": "Llama-3-8B",
     "prompt": 2048,
     "kv_bytes": 268435456.0,
     "link": "eth-100g",
-    "ms": 21.494836479999996
+    "ms": 21.4948
    },
    {
     "model": "Llama-3-8B",
     "prompt": 2048,
     "kv_bytes": 268435456.0,
     "link": "eth-25g",
-    "ms": 85.91934592
+    "ms": 85.9193
    },
    {
     "model": "Llama-3-8B",
     "prompt": 32768,
     "kv_bytes": 4294967296.0,
     "link": "nvlink4",
-    "ms": 9.54937176888889
+    "ms": 9.54937
    },
    {
     "model": "Llama-3-8B",
     "prompt": 32768,
     "kv_bytes": 4294967296.0,
     "link": "ib-ndr",
-    "ms": 85.90934591999999
+    "ms": 85.9093
    },
    {
     "model": "Llama-3-8B",
     "prompt": 32768,
     "kv_bytes": 4294967296.0,
     "link": "eth-100g",
-    "ms": 343.61738368
+    "ms": 343.617
    },
    {
     "model": "Llama-3-8B",
     "prompt": 32768,
     "kv_bytes": 4294967296.0,
     "link": "eth-25g",
-    "ms": 1374.4095347199998
+    "ms": 1374.41
    },
    {
     "model": "Llama-3-70B",
     "prompt": 2048,
     "kv_bytes": 671088640.0,
     "link": "nvlink4",
-    "ms": 1.4963080888888889
+    "ms": 1.49631
    },
    {
     "model": "Llama-3-70B",
     "prompt": 2048,
     "kv_bytes": 671088640.0,
     "link": "ib-ndr",
-    "ms": 13.431772800000001
+    "ms": 13.4318
    },
    {
     "model": "Llama-3-70B",
     "prompt": 2048,
     "kv_bytes": 671088640.0,
     "link": "eth-100g",
-    "ms": 53.7070912
+    "ms": 53.7071
    },
    {
     "model": "Llama-3-70B",
     "prompt": 2048,
     "kv_bytes": 671088640.0,
     "link": "eth-25g",
-    "ms": 214.7683648
+    "ms": 214.768
    },
    {
     "model": "Llama-3-70B",
     "prompt": 32768,
     "kv_bytes": 10737418240.0,
     "link": "nvlink4",
-    "ms": 23.865929422222223
+    "ms": 23.8659
    },
    {
     "model": "Llama-3-70B",
     "prompt": 32768,
     "kv_bytes": 10737418240.0,
     "link": "ib-ndr",
-    "ms": 214.7583648
+    "ms": 214.758
    },
    {
     "model": "Llama-3-70B",
     "prompt": 32768,
     "kv_bytes": 10737418240.0,
     "link": "eth-100g",
-    "ms": 859.0134592
+    "ms": 859.013
    },
    {
     "model": "Llama-3-70B",
     "prompt": 32768,
     "kv_bytes": 10737418240.0,
     "link": "eth-25g",
-    "ms": 3435.9938368000003
+    "ms": 3435.99
    }
   ],
   "weights": {
    "Llama-3-8B": {
     "bytes": 16059990016.0,
-    "pcie5_s": 0.250942344
+    "pcie5_s": 0.250942
    },
    "Llama-3-70B": {
     "bytes": 141104775168.0,
-    "pcie5_s": 2.204767112
+    "pcie5_s": 2.20477
    }
   },
   "kv_per_token": {
@@ -546,20 +546,20 @@
   {
    "signal": "white noise",
    "keep": 0.0625,
-   "topk": 0.32470684007264494,
-   "band": 0.0620044562791081
+   "topk": 0.324707,
+   "band": 0.0620045
   },
   {
    "signal": "2-D random walk (smooth)",
    "keep": 0.0625,
-   "topk": 0.9950250930941862,
-   "band": 0.9572114212826505
+   "topk": 0.995025,
+   "band": 0.957211
   },
   {
    "signal": "sparse spikes (1% non-zero)",
    "keep": 0.0625,
-   "topk": 0.3198864542053928,
-   "band": 0.062155795489409735
+   "topk": 0.319886,
+   "band": 0.0621558
   }
  ],
  "qsfp56_range": [

@@ -3,7 +3,8 @@
 module do useful work on, and how much work does each need per byte?
 
 Writes ``results.md`` and ``results.json`` beside this file. Every number in the CiT decks
-comes from here.
+comes from here. Floats in results.json are rounded to 6 significant figures so the file is the
+same on every machine; results.md formats its own numbers.
 
 Model shapes and link presets are imported from Disaggregated_Inference_Sim
 (``disagg_sim.hardware``) so this series and the simulator cannot drift.
@@ -170,6 +171,29 @@ def fmt(x: float, nd: int = 2) -> str:
     return f"{x:,.{nd}f}"
 
 
+JSON_SIG = 6   # significant figures kept in results.json, so the file does not depend on the machine
+
+
+def rounded(obj):
+    """Round every non-integral float in a nested structure to JSON_SIG significant figures.
+
+    Floating-point results can differ in the last bit between machines and library builds;
+    rounding before writing keeps results.json byte-identical across them. Whole-number floats
+    (byte counts, line rates) are exact already and are left as they are."""
+    if isinstance(obj, dict):
+        return {k: rounded(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [rounded(v) for v in obj]
+    if isinstance(obj, (float, np.floating)):
+        x = float(obj)
+        if not math.isfinite(x) or x.is_integer():
+            return x
+        return float(f"{x:.{JSON_SIG}g}")
+    if isinstance(obj, np.integer):
+        return int(obj)
+    return obj
+
+
 def main() -> None:
     rng = np.random.default_rng(20261008)
     res: dict = {"budget": [], "kernels": kernels(), "training": training_traffic(),
@@ -284,7 +308,7 @@ def main() -> None:
       "energy is concentrated at low frequencies within each chunk, which the experiment must test on real tensors.")
 
     (HERE / "results.md").write_text("\n".join(L) + "\n")
-    (HERE / "results.json").write_text(json.dumps(res, indent=1, default=float))
+    (HERE / "results.json").write_text(json.dumps(rounded(res), indent=1))
     print("\n".join(L))
 
 
