@@ -121,7 +121,7 @@
 <header class="hero">
     <div class="series-label">LLM Hub &mdash; Compute in Transit</div>
     <h1>Compute in <span class="accent">Transit</span></h1>
-    <p class="subtitle">Moving data now bounds much of LLM training and serving. Optalysys has demonstrated a photonic link module that computes on data as it crosses a link: FFT, NTT, modular arithmetic and MAC, in a QSFP56 pluggable. Three decks ask which LLM data movements it could work on, how much work each needs per byte, and why the strongest candidate is in training, not inference.</p>
+    <p class="subtitle">Moving data now bounds much of LLM training and serving. Optalysys has demonstrated a photonic link module that computes on data as it crosses a link: FFT, NTT, MAC, and modular and floating-point arithmetic, in a QSFP56 pluggable. Three decks ask which LLM data movements it could work on, how much work each needs per byte, and why the strongest candidate is in training, not inference.</p>
     <div class="tags"><span class="tag">Compute in transit</span><span class="tag">Operations per byte</span><span class="tag">In-network aggregation</span><span class="tag">DiLoCo / DeMo</span><span class="tag">KV hand-off and tiering</span><span class="tag">3 decks live</span></div>
 </header>
 <main class="container">
@@ -143,7 +143,7 @@
         <p><strong>How to read this series.</strong> Deck 01 sets out the idea, the hardware as published, and the budget every candidate must fit. Deck 02 goes through training traffic and ends with the experiment; deck 03 does the same for inference. Every number comes from <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Compute_in_Transit/blob/main/analysis/results.md">analysis/results.md</a> or a cited source, and illustrative figures are labelled where they are used.</p>
     </div>
     <div class="callout">
-        <p><strong>Optalysys and this series.</strong> Optalysys publicly describes Compute-in-Transit and lists generative AI among its targets, but its only published evaluation is FHE (CKKS bootstrapping). Everything here about applying it to LLM training or inference traffic is this series&rsquo; own analysis, attributed to no company.</p>
+        <p><strong>Optalysys and this series.</strong> Optalysys publicly describes Compute-in-Transit and lists AI infrastructure among its targets, but its only published evaluation is FHE (CKKS bootstrapping). Everything here about applying it to LLM training or inference traffic is this series&rsquo; own analysis, attributed to no company.</p>
     </div>
 
     <h2 id="glossary">Glossary: Concepts and Where They Are Explained</h2>
@@ -155,11 +155,11 @@
     <dt id="g-placement">Placement: endpoint, link, switch</dt>
     <dd>Where the work sits decides what it can see: an endpoint sees its own data, a pluggable link module sees one flow at line rate, and a switch sees many flows, so only a switch can combine streams.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-02">CiT 01 &middot; slide 02</a></span></dd>
     <dt id="g-module">Photonic link module</dt>
-    <dd>Optalysys's QSFP56 pluggable with an integrated optical Fourier transform device, reported to run FFT, NTT, modular arithmetic and MAC on link traffic at &ldquo;tens of GFLOPs&rdquo; (the authors' claim, evaluated on CKKS bootstrapping; arXiv:2608.21536).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-03">CiT 01 &middot; slide 03</a></span></dd>
+    <dd>Optalysys's QSFP56 pluggable with an integrated optical Fourier transform device, reported to run FFT, NTT, MAC, and modular and floating-point arithmetic on link traffic at &ldquo;tens of GFLOPs&rdquo; (the authors' claim, evaluated on CKKS bootstrapping; arXiv:2608.21536).<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-03">CiT 01 &middot; slide 03</a></span></dd>
     <dt id="g-opset">Published operation set</dt>
-    <dd>The operations the public sources list for the module: FFT, NTT, modular arithmetic and MAC. Comparisons, rounding, top-k selection and data-dependent control are not listed, so a kernel must apply the same arithmetic to every value.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-04">CiT 01 &middot; slide 04</a></span></dd>
+    <dd>The operations the paper lists for the module: radix-4 FFT and NTT, addition, subtraction, multiplication, MAC, floating-point MAC and modular arithmetic. Comparisons, rounding, top-k selection and data-dependent control are not listed, so a kernel must apply the same arithmetic to every value.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-04">CiT 01 &middot; slide 04</a></span></dd>
     <dt id="g-recombine">Recombined optical transforms</dt>
-    <dd>Small, low-precision on-die optical transforms (4 points per stage in Optalysys's 2023 description) combined into larger, higher-precision power-of-2 FFTs or NTTs.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-05">CiT 01 &middot; slide 05</a></span></dd>
+    <dd>Small, low-precision on-die optical transforms (four optical channels with radix-4 decomposition in the prototype; Kundu et al.) combined into larger, higher-precision power-of-2 FFTs or NTTs.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-05">CiT 01 &middot; slide 05</a></span></dd>
     <dt id="g-opsperbyte">Operations per byte</dt>
     <dd>A link module's compute rate divided by its line rate: the arithmetic it can apply to each byte without slowing the link. 0.40 to 3.96 on a QSFP56 link, reading &ldquo;tens of GFLOPs&rdquo; as 10 to 99 GFLOP/s.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_01_Compute_in_Transit/#slide-06">CiT 01 &middot; slide 06</a>; <a href="https://brendanjameslynskey.github.io/CiT_02_Data_Movement_in_LLM_Training/#slide-05">CiT 02 &middot; slide 05</a></span></dd>
     <dt id="g-charged">Transform charged or free</dt>
@@ -203,13 +203,13 @@
     <dt id="g-handoff">KV hand-off</dt>
     <dd>Moving a request's KV cache from the prefill pool that built it to the decode pool that uses it, in disaggregated serving.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-03">CiT 03 &middot; slide 03</a></span></dd>
     <dt id="g-keepk">Frequency keep-k KV compression</dt>
-    <dd>Transforming KV along the token axis and keeping a fixed band of components (FreqKV keeps half by default): an FFT and a gather, inside the published operations.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-04">CiT 03 &middot; slide 04</a></span></dd>
+    <dd>Transforming KV along the token axis and keeping a fixed band of components (FreqKV applies a DCT and keeps half by default): a transform, which an FFT can compute, and a gather, inside the published operations.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-04">CiT 03 &middot; slide 04</a></span></dd>
     <dt id="g-kvquant">KV-cache quantisation</dt>
     <dd>Storing KV at 2 to 4 bits (KIVI, KVQuant). It needs block maxima and rounding, which are outside the published operation set.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-04">CiT 03 &middot; slide 04</a></span></dd>
     <dt id="g-tiering">KV tiering and prefix caching</dt>
     <dd>Keeping KV in CPU memory, SSD or a shared pool and fetching it back when a prefix is reused (LMCache, Mooncake): the series' best inference candidate.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-05">CiT 03 &middot; slide 05</a></span></dd>
     <dt id="g-qaware">Query-aware KV selection</dt>
-    <dd>Scoring page summaries against the query and fetching only the top pages (Quest). Scoring is MAC, 1 operation per BF16 byte; ranking needs comparisons.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-06">CiT 03 &middot; slide 06</a></span></dd>
+    <dd>Scoring page summaries against the query and fetching only the top pages (Quest). A plain dot-product score is MAC, 1 operation per BF16 byte; Quest's own bound and the ranking both need comparisons.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-06">CiT 03 &middot; slide 06</a></span></dd>
     <dt id="g-prism">Photonic similarity engine (PRISM)</dt>
     <dd>A proposed photonic engine, by other authors, that ranks KV blocks by inner product at low precision: evidence that KV selection is being explored optically.<span class="where">Explained in: <a href="https://brendanjameslynskey.github.io/CiT_03_Data_Movement_in_LLM_Inference/#slide-06">CiT 03 &middot; slide 06</a></span></dd>
     <dt id="g-ringattention">Ring attention (context parallelism)</dt>

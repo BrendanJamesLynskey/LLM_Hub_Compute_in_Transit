@@ -18,6 +18,8 @@ Conventions (stated again in results.md):
     arXiv:2608.21536); we bracket it with 10 and 99 GFLOP/s. That bracket is our reading of
     "tens", not a measurement, and a reviewer of the paper notes the figure is asserted.
   * QSFP56 carries 200 Gb/s (25 GB/s). 400G and 800G rows assume the same engine per link.
+    That is the port's rate. The paper's prototype drives its photonic devices at 14 GBaud with
+    NRZ data into four modulators, and does not show the optics keeping pace with 200 Gb/s.
   * Training traffic: BF16 gradients, 2 bytes per parameter. A ring all-reduce sends
     2 (N - 1) / N times the buffer from each of N workers.
   * Compression ratios: 2x = BF16 to FP8; 8x = BF16 to 2-bit (MuLoCo's setting);

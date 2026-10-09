@@ -1,6 +1,6 @@
 # Compute in Transit
 
-Moving data has become the bottleneck in LLM training and serving. *Compute in transit* means doing useful work on data while it crosses a link, rather than after it arrives. Optalysys has demonstrated a photonic link module that does this: a QSFP56 pluggable with an integrated optical Fourier transform device, running FFT, NTT, modular arithmetic and MAC on data in the link. This series asks which LLM data movements such a module could work on, and how much work each needs per byte. It covers training as well as inference, and its strongest candidate is in training: compressing gradient or momentum updates sent between data centres.
+Moving data has become the bottleneck in LLM training and serving. *Compute in transit* means doing useful work on data while it crosses a link, rather than after it arrives. Optalysys has demonstrated a photonic link module that does this: a QSFP56 pluggable with an integrated optical Fourier transform device, running FFT, NTT, MAC, and modular and floating-point arithmetic on data in the link. This series asks which LLM data movements such a module could work on, and how much work each needs per byte. It covers training as well as inference, and its strongest candidate is in training: compressing gradient or momentum updates sent between data centres.
 
 **Live index:** https://brendanjameslynskey.github.io/LLM_Hub_Compute_in_Transit/
 
@@ -27,7 +27,7 @@ Reproduce: `pip install numpy pytest` and `pip install -e` a checkout of [Disagg
 
 The module's compute rate is the authors' claim ("tens of GFLOPs" per link), bracketed here by 10 and 99 GFLOP/s; a reviewer notes it is asserted rather than measured. Link energies and latencies are the simulator's illustrative presets. Compression ratios (2x, 8x, 85x) are the cited papers' figures, used only to size transfers. The fixed band against top-k comparison uses synthetic signals; real momentum tensors are what the planned experiment measures. The placement of candidates is this series' judgement.
 
-> Optalysys and this series. Optalysys publicly describes Compute-in-Transit and lists generative AI among its targets, but its only published evaluation is FHE (CKKS bootstrapping). Everything here about applying it to LLM training or inference traffic is this series' own analysis, attributed to no company.
+> Optalysys and this series. Optalysys publicly describes Compute-in-Transit and lists AI infrastructure among its targets, but its only published evaluation is FHE (CKKS bootstrapping). Everything here about applying it to LLM training or inference traffic is this series' own analysis, attributed to no company.
 
 ## How to read this series
 
