@@ -14,12 +14,15 @@ Conventions: real FFT or DCT of length n = 2.5 log2 n FLOPs per value (FFTW's co
 | 400G | 50 | high (99 GFLOP/s) | 1.98 |
 | 800G | 100 | low (10 GFLOP/s) | 0.10 |
 | 800G | 100 | high (99 GFLOP/s) | 0.99 |
+| Prototype optics (4 x 14 Gb/s NRZ) | 7 | low (10 GFLOP/s) | 1.43 |
+| Prototype optics (4 x 14 Gb/s NRZ) | 7 | high (99 GFLOP/s) | 14.14 |
 
 * On a QSFP56 link the module can apply **0.40 to 3.96 operations per byte**. If an FFT is charged against that budget, no transform fits at the low end (even length 2 costs 1.25 per BF16 byte) and the longest that fits at the high end is length 8. If the optics performs the transform without charge, only the remaining arithmetic counts.
+* 25 GB/s is the QSFP56 port's rate. The prototype's optics take four modulators at 14 GBaud with NRZ data (Kundu et al., section II): about 7 GB/s by our arithmetic, 28% of the port. At that rate the same claim gives **1.43 to 14.14 operations per byte**, and the longest charged BF16 FFT that fits is length 2 at the low end and 2048 at the high end. More work per byte, but on a link the prototype could not fill: a module limited to its optics' rate would itself throttle a 200 Gb/s link.
 
 ## 2. Work per byte of candidate in-transit kernels
 
-*Transform* = FFT/DCT FLOPs per input byte (zero if the optics does the transform for free). *Other* = the remaining arithmetic. *In set* = built only from the published operations (FFT, NTT, modular arithmetic, MAC).
+*Transform* = FFT/DCT FLOPs per input byte (zero if the optics does the transform for free). *Other* = the remaining arithmetic. *In set* = built only from the published operations (FFT and NTT (radix-4), addition and subtraction, multiplication, MAC, floating-point MAC, modular arithmetic).
 
 | Kernel | Phase | Transform / byte | Other / byte | In set | Fits low budget (transform charged) | Fits high budget (transform charged) | Fits if transform free (low) | Note |
 |---|---|---|---|---|---|---|---|---|

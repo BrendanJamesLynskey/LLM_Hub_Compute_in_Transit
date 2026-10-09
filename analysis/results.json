@@ -35,6 +35,18 @@
    "rate": 100000000000.0,
    "claim": "high (99 GFLOP/s)",
    "ops_per_byte": 0.99
+  },
+  {
+   "link": "Prototype optics (4 x 14 Gb/s NRZ)",
+   "rate": 7000000000.0,
+   "claim": "low (10 GFLOP/s)",
+   "ops_per_byte": 1.42857
+  },
+  {
+   "link": "Prototype optics (4 x 14 Gb/s NRZ)",
+   "rate": 7000000000.0,
+   "claim": "high (99 GFLOP/s)",
+   "ops_per_byte": 14.1429
   }
  ],
  "kernels": [
@@ -569,5 +581,17 @@
  "largest_fft_bf16": {
   "low": null,
   "high": 8
+ },
+ "prototype_optics": {
+  "rate": 7000000000.0,
+  "range": [
+   1.42857,
+   14.1429
+  ],
+  "share_of_qsfp56": 0.28,
+  "largest_fft_bf16": {
+   "low": 2,
+   "high": 2048
+  }
  }
 }

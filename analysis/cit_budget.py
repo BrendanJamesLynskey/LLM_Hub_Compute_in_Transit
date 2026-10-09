@@ -44,8 +44,13 @@ GB = 1e9
 
 # ─────────────────────────────────────────────────────────── budget ──
 LINE_RATES = {"QSFP56 200G": 25 * GB, "400G": 50 * GB, "800G": 100 * GB}
+# The prototype's optics, not its port: four modulators at 14 GBaud with NRZ (1 bit per symbol)
+# data in (Kundu et al., section II). 4 x 14 Gb/s = 56 Gb/s = 7 GB/s is our arithmetic, not a
+# figure the paper states.
+OPTICS_RATES = {"Prototype optics (4 x 14 Gb/s NRZ)": 4 * 14e9 / 8}
 CLAIM_GFLOPS = {"low (10 GFLOP/s)": 10e9, "high (99 GFLOP/s)": 99e9}
-PUBLISHED_OPS = ("FFT", "NTT", "modular arithmetic", "MAC")
+PUBLISHED_OPS = ("FFT and NTT (radix-4)", "addition and subtraction", "multiplication", "MAC",
+                 "floating-point MAC", "modular arithmetic")
 
 
 def budget(gflops: float, rate: float) -> float:
@@ -55,6 +60,16 @@ def budget(gflops: float, rate: float) -> float:
 
 def fft_per_value(n: int) -> float:
     return 2.5 * math.log2(n)
+
+
+def largest_fft_bf16(ops_per_byte: float) -> int | None:
+    """Longest power-of-2 FFT whose FLOPs per BF16 byte fit the budget, or None if not even length 2."""
+    if fft_per_value(2) / 2 > ops_per_byte:
+        return None
+    n = 2
+    while fft_per_value(n * 2) / 2 <= ops_per_byte:
+        n *= 2
+    return n
 
 
 def dct2d_per_value(c: int) -> float:
@@ -200,19 +215,20 @@ def main() -> None:
     rng = np.random.default_rng(20261008)
     res: dict = {"budget": [], "kernels": kernels(), "training": training_traffic(),
                  "inference": inference_traffic(), "band_vs_topk": band_vs_topk(rng)}
-    for lname, rate in LINE_RATES.items():
+    for lname, rate in {**LINE_RATES, **OPTICS_RATES}.items():
         for cname, g in CLAIM_GFLOPS.items():
             res["budget"].append(dict(link=lname, rate=rate, claim=cname, ops_per_byte=budget(g, rate)))
     lo = budget(10e9, LINE_RATES["QSFP56 200G"])
     hi = budget(99e9, LINE_RATES["QSFP56 200G"])
     res["qsfp56_range"] = [lo, hi]
-    largest_fft = {}
-    for label, b in (("low", lo), ("high", hi)):
-        n = 2
-        while fft_per_value(n * 2) / 2 <= b:
-            n *= 2
-        largest_fft[label] = n if fft_per_value(n) / 2 <= b else None
+    largest_fft = {"low": largest_fft_bf16(lo), "high": largest_fft_bf16(hi)}
     res["largest_fft_bf16"] = largest_fft
+    optics_rate = OPTICS_RATES["Prototype optics (4 x 14 Gb/s NRZ)"]
+    olo, ohi = budget(10e9, optics_rate), budget(99e9, optics_rate)
+    res["prototype_optics"] = dict(rate=optics_rate, range=[olo, ohi],
+                                   share_of_qsfp56=optics_rate / LINE_RATES["QSFP56 200G"],
+                                   largest_fft_bf16={"low": largest_fft_bf16(olo), "high": largest_fft_bf16(ohi)})
+    po = res["prototype_optics"]
 
     L = []
     w = L.append
@@ -232,7 +248,14 @@ def main() -> None:
     w(f"\n* On a QSFP56 link the module can apply **{fmt(lo)} to {fmt(hi)} operations per byte**. "
       "If an FFT is charged against that budget, no transform fits at the low end (even length 2 costs 1.25 per "
       f"BF16 byte) and the longest that fits at the high end is length {largest_fft['high']}. "
-      "If the optics performs the transform without charge, only the remaining arithmetic counts.\n")
+      "If the optics performs the transform without charge, only the remaining arithmetic counts.")
+    w(f"* 25 GB/s is the QSFP56 port's rate. The prototype's optics take four modulators at 14 GBaud with NRZ "
+      f"data (Kundu et al., section II): about {fmt(po['rate'] / GB, 0)} GB/s by our arithmetic, "
+      f"{fmt(100 * po['share_of_qsfp56'], 0)}% of the port. At that rate the same claim gives "
+      f"**{fmt(po['range'][0])} to {fmt(po['range'][1])} operations per byte**, and the longest charged BF16 FFT "
+      f"that fits is length {po['largest_fft_bf16']['low'] or 'none'} at the low end and "
+      f"{po['largest_fft_bf16']['high']} at the high end. More work per byte, but on a link the prototype "
+      "could not fill: a module limited to its optics' rate would itself throttle a 200 Gb/s link.\n")
 
     w("## 2. Work per byte of candidate in-transit kernels\n")
     w("*Transform* = FFT/DCT FLOPs per input byte (zero if the optics does the transform for free). "

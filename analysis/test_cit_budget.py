@@ -16,6 +16,20 @@ def test_budget_bracket_on_qsfp56():
     assert C.budget(99e9, 25e9) == pytest.approx(3.96)
 
 
+def test_prototype_optics_rate():
+    # four modulators x 14 GBaud x 1 bit (NRZ) = 56 Gb/s = 7 GB/s
+    rate = C.OPTICS_RATES["Prototype optics (4 x 14 Gb/s NRZ)"]
+    assert rate == pytest.approx(7e9)
+    assert C.budget(10e9, rate) == pytest.approx(10 / 7)
+    assert C.budget(99e9, rate) == pytest.approx(99 / 7)
+
+
+def test_largest_fft_that_fits():
+    assert C.largest_fft_bf16(0.4) is None          # length 2 costs 1.25 per BF16 byte
+    assert C.largest_fft_bf16(3.96) == 8            # matches the QSFP56 high end
+    assert C.largest_fft_bf16(99 / 7) == 2048       # 2.5 x 11 / 2 = 13.75 <= 14.14
+
+
 def test_fft_cost_convention():
     # FFTW convention: real FFT of length n = 2.5 n log2 n FLOPs, so 2.5 log2 n per value
     assert C.fft_per_value(1024) == pytest.approx(25.0)
