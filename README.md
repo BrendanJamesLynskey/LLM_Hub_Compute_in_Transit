@@ -6,6 +6,8 @@ Moving data has become the bottleneck in LLM training and serving. *Compute in t
 
 **Related site:** [Compute in Transit: Results](https://compute-in-transit-results.vercel.app/) ([code](https://github.com/BrendanJamesLynskey/compute-in-transit-results)) is an interactive companion to decks 04 and 05: the experiment's loss curves, captured energy and emulated optics replayed from the run logs, the training-transit simulation running live in the browser (its TypeScript port reproduces the simulation's recorded results), and the Colab notebook that ran the sweep, to read, download or open in Colab.
 
+**Related deck:** [Role Primer: Simulation & Frameworks Engineer](https://brendanjameslynskey.github.io/InfSim_11_Role_Primer/#slide-07b) (in [LLM Inference Simulators](https://github.com/BrendanJamesLynskey/LLM_Hub_Inference_Simulators)) summarises this series' budget, experiment and simulation, with practice questions and model answers.
+
 ## Presentations in this series
 
 | # | Title | Status | What it covers |
