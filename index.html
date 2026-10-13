@@ -121,6 +121,7 @@
 <header class="hero">
     <div class="series-label">LLM Hub &mdash; Compute in Transit</div>
     <h1>Compute in <span class="accent">Transit</span></h1>
+    <p class="subtitle"><strong>The goal:</strong> compress gradient traffic on the wire <strong>without sending indices</strong>, with the compression done <strong>for free in the link</strong>. A fixed frequency band needs no comparisons, so the optics can compute it in transit, and both ends already know which coefficients are sent. <strong>What was found:</strong> at this scale, a negative result. A fixed band did not replace DeMo&rsquo;s top-k (deck 04), and a pluggable module computing it never breaks even with AdamW in the simulation (deck 05); summing the band at the switch pays only on slow WANs.</p>
     <p class="subtitle">Moving data now bounds much of LLM training and serving. A photonic link module (arXiv:2608.21536) has been demonstrated that computes on data as it crosses a link: FFT, NTT, MAC, and modular and floating-point arithmetic, in a QSFP56 pluggable. Three decks ask which LLM data movements it could work on, how much work each needs per byte, and why the strongest candidate is in training, not inference; a fourth tests that candidate by experiment, and a fifth simulates what it means in time and energy.</p>
     <div class="tags"><span class="tag">Compute in transit</span><span class="tag">Operations per byte</span><span class="tag">In-network aggregation</span><span class="tag">DiLoCo / DeMo</span><span class="tag">KV hand-off and tiering</span><span class="tag">Fixed-band experiment</span><span class="tag">Training-transit simulation</span><span class="tag">5 decks live</span></div>
 </header>
@@ -133,6 +134,10 @@
     <li class="deck-card"><div class="num"></div><div class="body"><a class="deck-title" href="https://brendanjameslynskey.github.io/CiT_04_Fixed_Band_Experiment/">The Fixed-Band Experiment &rarr;</a><div class="desc">DeMo with its top-k replaced by a fixed frequency band, which a photonic link module (arXiv:2608.21536) could compute, on a 15.8M-parameter GPT with eight simulated workers: every fixed band ends more than a nat above top-k; payload and wire bytes, with an interactive ring calculator; captured energy on real momentum; why the emulated optics first diverged and how feeding back the values sent fixed it; ENOB and bit planes; what it means for a link module.</div><div class="meta"><span class="badge live">live</span><span>DeMo &middot; Captured energy &middot; Error feedback &middot; ENOB</span></div></div></li>
     <li class="deck-card"><div class="num"></div><div class="body"><a class="deck-title" href="https://brendanjameslynskey.github.io/CiT_05_Training_Transit_Simulation/">Training Transit, Simulated &rarr;</a><div class="desc">A SimPy model of eight workers in one or more data centres turns the experiment&rsquo;s steps and wire bytes into time and energy to a target loss, with the module as a link kernel (port, optics, compute budget, FPGA; the slowest stage wins): top-k is fastest on every topology; with the transform charged the module is the bottleneck; a pluggable never breaks even; summing the band at the switch gains only on slow WANs, where a band summed by the GPUs gains more. Interactive break-even against WAN bandwidth; hot spots, energy, labelled extrapolations.</div><div class="meta"><span class="badge live">live</span><span>Link kernel &middot; Hot spots &middot; Break-even &middot; In-switch summing</span></div></div></li>
     </ol>
+
+    <h2 id="chain">The Proposed System, End to End</h2>
+    <p class="gloss-intro">Variant E, from a worker&rsquo;s gradient on the TX GPU to the weight update on every receiving GPU: the delta in 1-D chunks of 256, written onto light as bit planes, transformed by the optics, only the band&rsquo;s outputs read and sent as values with no indices, then placed, averaged, inverse-transformed and applied as a sign; each sender feeds back what it sent. E&prime; computes and sums the band at the switch instead (the simulation&rsquo;s hypothetical variant). Tags: <strong>P</strong> the module&rsquo;s paper, <strong>X</strong> the experiment&rsquo;s model, <strong>S</strong> the simulation, <strong>A</strong> an assumption. Every frame is computed by a port of the experiment&rsquo;s code, checked against it; the chunk&rsquo;s numbers are illustrative and the bytes are the experiment&rsquo;s recorded ones. The full version, with bit planes and ENOB, is on <a href="https://brendanjameslynskey.github.io/CiT_04_Fixed_Band_Experiment/#slide-01b">deck 04, slide 01b</a>.</p>
+    <div class="cc" id="hub-chain" data-cit-chain="light" aria-label="Animation of the whole chain, stage by stage"></div>
 
     <h2>Analysis and Code</h2>
     <ol class="deck-list" style="counter-reset: none;">
@@ -262,6 +267,1030 @@
     <p style="margin-top: 0.5rem;">Related site: <a href="https://compute-in-transit-results.vercel.app/">Compute in Transit: Results</a> &mdash; an interactive companion to decks 04 and 05: the experiment&rsquo;s loss curves, captured energy and emulated optics replayed from the run logs, the training-transit simulation running live in the browser, and the Colab notebook that ran the sweep.</p>
     <p style="margin-top: 0.5rem;">Related deck: <a href="https://brendanjameslynskey.github.io/InfSim_11_Role_Primer/#slide-07b">Role Primer: Simulation &amp; Frameworks Engineer</a> &mdash; the LLM Inference Simulators series&rsquo; role primer summarises this series&rsquo; budget, experiment and simulation, with practice questions and model answers.</p>
 </footer>
+
+<!-- cit-chain:assets:begin -->
+<style>
+/* The chain animation in the static decks (Walnut-dark CiT palette, through the decks' own variables) */
+.cc { --chain-a: var(--accent); --chain-b: #de805a; --chain-muted: #8a8076; --chain-band: rgba(108,182,196,0.20);
+      --chain-box: var(--bg-code); --chain-line: var(--text-secondary);
+      color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.8rem; margin: 1.2rem 0; min-width: 0; }
+.cc:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cc svg text { font-family: var(--font-body); }
+.cc-params { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.6rem; }
+.cc-param { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.cc select { background: var(--bg-code); color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px; min-height: 44px; font-family: var(--font-mono); font-size: 0.8rem; max-width: 100%; }
+.cc-controls { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.6rem; }
+.cc-controls button { min-height: 44px; min-width: 44px; background: var(--bg-code); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; padding: 0 0.7rem; cursor: pointer; }
+.cc-controls .cc-play { border-color: var(--accent); color: var(--accent); }
+.cc-controls input[type="range"] { flex: 1 1 140px; min-width: 0; min-height: 44px; accent-color: var(--accent); }
+.cc-count, .cc-stage, .cc-note { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); margin: 0.5rem 0 0.2rem; }
+.cc-caption { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-primary); background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.5rem 0.7rem; margin: 0.5rem 0 0; min-height: 3.2em; }
+.cc-view { background: var(--bg-primary); border-radius: 6px; padding: 4px; }
+</style>
+<script>
+// Generated by compute-in-transit-results/scripts/build-chain-js.ts from src/lib/chain/model.ts and render.ts
+// (sources sha256 569a56cc6ef5). Do not edit: change the sources and regenerate. MIT licence.
+(function () {
+"use strict";
+/**
+ * The whole proposed chain, TX input data to RX output data, for one chunk
+ * of 256 values on each of 8 workers: a TypeScript port of what the
+ * experiment's code does to it (DeMo_Fixed_Band_Experiment at b1f62d3,
+ * experiment/compressors.py and train.py's demo_step, variant E: 1-D chunks
+ * of 256, the low band, k = 16, feedback of the values sent), stage by
+ * stage, so an animation can show every intermediate value.
+ *
+ * Checked against the experiment's own functions by tests/unit/chain.test.ts
+ * (fixture: scripts/chain_reference.py). No imports, so the same file is
+ * also compiled for the decks (scripts/build-chain-js.mjs).
+ */
+// ── the transform ─────────────────────────────────────────────────────
+/** Orthonormal DCT-II matrix D (n x n): coefficients = D x (compressors.dct_matrix). */
+function dctMatrix(n) {
+    const d = [];
+    for (let k = 0; k < n; k++) {
+        const row = [];
+        for (let i = 0; i < n; i++)
+            row.push(Math.cos((Math.PI * (2 * i + 1) * k) / (2 * n)) * Math.sqrt(2 / n));
+        if (k === 0)
+            for (let i = 0; i < n; i++)
+                row[i] = row[i] / Math.SQRT2;
+        d.push(row);
+    }
+    return d;
+}
+/** c = D x (Chunker.encode for one 1-D chunk). */
+function encode(x, D) {
+    return D.map((row) => row.reduce((s, v, i) => s + v * x[i], 0));
+}
+/** x = Dᵀ c (Chunker.decode). */
+function decode(c, D) {
+    const n = c.length;
+    const x = new Array(n).fill(0);
+    for (let k = 0; k < n; k++) {
+        const ck = c[k];
+        if (ck === 0)
+            continue;
+        const row = D[k];
+        for (let i = 0; i < n; i++)
+            x[i] = x[i] + ck * row[i];
+    }
+    return x;
+}
+/** The low band of a 1-D chunk: positions 0 .. k-1 (band_order "low"). */
+function bandPositions(k) {
+    return Array.from({ length: k }, (_, i) => i);
+}
+// ── the optics, as the experiment emulates it ─────────────────────────
+/** Round half to even, as torch.round does. */
+function roundHalfEven(x) {
+    const r = Math.round(x);
+    return Math.abs(x % 1) === 0.5 && r % 2 !== 0 ? r - 1 : r;
+}
+/** RMS over every value of every row (the full scale's mean square: a MAC). */
+function rms(rows) {
+    let s = 0;
+    let n = 0;
+    for (const r of rows)
+        for (const v of r) {
+            s += v * v;
+            n += 1;
+        }
+    return Math.sqrt(s / n);
+}
+/** P-bit two's-complement integers against the full scale, saturating. */
+function quantise(x, scale, planes) {
+    const qmax = 2 ** (planes - 1) - 1;
+    let clipped = 0;
+    const q = x.map((v) => {
+        const r = roundHalfEven((v / scale) * qmax);
+        if (Math.abs(r) > qmax)
+            clipped += 1;
+        return Math.max(-qmax, Math.min(qmax, r)) + 0; // + 0: no negative zero
+    });
+    return { q, clipped };
+}
+/** Bit planes: plane b holds bit b of every value's two's-complement pattern (0 or 1). */
+function bitPlanes(q, planes) {
+    const mask = 2 ** planes - 1;
+    return Array.from({ length: planes }, (_, b) => q.map((v) => {
+        const u = ((v % (mask + 1)) + (mask + 1)) % (mask + 1);
+        return Math.floor(u / 2 ** b) % 2;
+    }));
+}
+/** The band outputs of one input vector: rows `pos` of D times x. */
+function bandOf(x, D, pos) {
+    return pos.map((r) => D[r].reduce((s, v, j) => s + v * x[j], 0));
+}
+/** A plane's readout full scale: with a 0/1 input, output i reaches at most Σⱼ|Dᵢⱼ|. */
+function fsOut(D) {
+    return Math.max(...D.map((row) => row.reduce((s, v) => s + Math.abs(v), 0)));
+}
+/** Readout noise RMS at an ENOB: FS · 2^-ENOB · 2/√12 (OpticsEmulator.plane_noise_rms). */
+function noiseRms(fs, enob) {
+    return enob === null ? 0 : (fs * 2 ** -enob * 2) / Math.sqrt(12);
+}
+/** Recombine plane outputs: Σ 2^b · out_b, the MSB weighted −2^(P−1), times scale / qmax. */
+function recombine(outs, planes, scale) {
+    const qmax = 2 ** (planes - 1) - 1;
+    const k = outs[0].length;
+    const y = new Array(k).fill(0);
+    outs.forEach((o, b) => {
+        const w = b === planes - 1 ? -(2 ** b) : 2 ** b;
+        for (let i = 0; i < k; i++)
+            y[i] = y[i] + w * o[i];
+    });
+    return y.map((v) => (v * scale) / qmax);
+}
+/** Seeded uniform PRNG (mulberry32) and a Gaussian (Box–Muller), for the readout noise. */
+function mulberry32(seed) {
+    let a = seed | 0;
+    return () => {
+        a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+function gauss(r) {
+    return Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+}
+/** One worker's chunk through the emulated optics (OpticsEmulator.__call__). */
+function optics(x, D, pos, planes, sigma, scale, rnd) {
+    if (planes === null) {
+        const y = bandOf(x, D, pos);
+        const read = sigma ? y.map((v) => v + gauss(rnd) * sigma) : y.slice();
+        return {
+            q: null,
+            clipped: 0,
+            bits: [],
+            ideal: [y],
+            read: [read],
+            values: read,
+        };
+    }
+    const { q, clipped } = quantise(x, scale, planes);
+    const bits = bitPlanes(q, planes);
+    const ideal = bits.map((p) => bandOf(p, D, pos));
+    const read = ideal.map((o) => sigma ? o.map((v) => v + gauss(rnd) * sigma) : o.slice());
+    return {
+        q,
+        clipped,
+        bits,
+        ideal,
+        read,
+        values: recombine(read, planes, scale),
+    };
+}
+// ── the network and the receiver ──────────────────────────────────────
+/** Every worker's band values placed at the fixed positions, the mean at each, zeros elsewhere (scatter_mean). */
+function scatterMean(vals, pos, m) {
+    const out = new Array(m).fill(0);
+    pos.forEach((p, j) => {
+        let s = 0;
+        for (const v of vals)
+            s += v[j];
+        out[p] = s / vals.length;
+    });
+    return out;
+}
+/** The switch's sum of the band values (E′), before the receiver divides by the workers. */
+function switchSum(vals) {
+    return vals[0].map((_, j) => vals.reduce((s, v) => s + v[j], 0));
+}
+const sign = (x) => x.map((v) => Math.sign(v));
+/** The chain for every worker's chunk, as demo_step does it for variant E. */
+function chainRun(inp, params) {
+    const { m, k, decay, lr, kappa } = inp;
+    const D = dctMatrix(m);
+    const pos = bandPositions(k);
+    const delta = inp.residual.map((r, w) => r.map((v, i) => v * decay + lr * inp.grad[w][i]));
+    const coef = delta.map((d) => encode(d, D));
+    const band = coef.map((c) => pos.map((p) => c[p]));
+    const r0 = rms(delta);
+    const scale = r0 > 0 ? kappa * r0 : 1;
+    const fs = fsOut(D);
+    const sigma = noiseRms(fs, params.enob);
+    const rnd = mulberry32(params.seed);
+    const opt = delta.map((d) => optics(d, D, pos, params.planes, sigma, scale, rnd));
+    const sent = opt.map((o) => o.values);
+    const sum = switchSum(sent);
+    const agg = params.mode === "Eprime"
+        ? (() => {
+            const out = new Array(m).fill(0);
+            pos.forEach((p, j) => (out[p] = sum[j] / sent.length));
+            return out;
+        })()
+        : scatterMean(sent, pos, m);
+    const update = decode(agg, D);
+    const residualAfter = delta.map((d, w) => {
+        const c = new Array(m).fill(0);
+        pos.forEach((p, j) => (c[p] = sent[w][j]));
+        const back = decode(c, D);
+        return d.map((v, i) => v - back[i]);
+    });
+    return {
+        params,
+        D,
+        pos,
+        delta,
+        coef,
+        band,
+        scale,
+        fs,
+        sigma,
+        optics: opt,
+        sent,
+        sum,
+        agg,
+        update,
+        sign: sign(update),
+        residualAfter,
+    };
+}
+/** The diagram's blocks in chain order, with their group and source tags. */
+const BLOCKS = [
+    {
+        id: "grad",
+        group: "tx",
+        label: "gradient g",
+        sub: "TX GPU",
+        tags: ["experiment"],
+    },
+    {
+        id: "delta",
+        group: "tx",
+        label: "δ ← decay·δ + lr·g",
+        sub: "momentum / delta",
+        tags: ["experiment"],
+    },
+    {
+        id: "chunk",
+        group: "tx",
+        label: "1-D chunks of 256",
+        sub: "this is one",
+        tags: ["experiment"],
+    },
+    {
+        id: "port",
+        group: "module",
+        label: "host FPGA card → QSFP56",
+        sub: "dense values in",
+        tags: ["paper"],
+    },
+    {
+        id: "quant",
+        group: "module",
+        label: "P-bit integers",
+        sub: "full scale κ·RMS",
+        tags: ["experiment"],
+    },
+    {
+        id: "mzm",
+        group: "module",
+        label: "4 × modulator",
+        sub: "binary NRZ: bit planes",
+        tags: ["paper", "experiment"],
+    },
+    {
+        id: "oft",
+        group: "module",
+        label: "optical Fourier transform",
+        sub: "passive, diffractive",
+        tags: ["paper", "assumption"],
+    },
+    {
+        id: "pd",
+        group: "module",
+        label: "read k = 16 of 256",
+        sub: "balanced photodiodes",
+        tags: ["paper", "assumption"],
+    },
+    {
+        id: "adc",
+        group: "module",
+        label: "TIAs / ADCs",
+        sub: "readout at an ENOB",
+        tags: ["paper", "experiment"],
+    },
+    {
+        id: "fpga",
+        group: "module",
+        label: "FPGA: Σ 2^b · plane",
+        sub: "16 values",
+        tags: ["experiment"],
+    },
+    {
+        id: "fibre",
+        group: "net",
+        label: "values only, no indices",
+        sub: "serialised NRZ",
+        tags: ["experiment"],
+    },
+    {
+        id: "net",
+        group: "net",
+        label: "all-gather",
+        sub: "or E′: switch sums",
+        tags: ["experiment", "simulation"],
+    },
+    {
+        id: "place",
+        group: "rx",
+        label: "band positions, mean",
+        sub: "RX transceiver → GPU",
+        tags: ["experiment"],
+    },
+    {
+        id: "idct",
+        group: "rx",
+        label: "inverse DCT",
+        sub: "256 values",
+        tags: ["experiment"],
+    },
+    {
+        id: "sign",
+        group: "rx",
+        label: "sign → weights",
+        sub: "w ← w − lr·sign",
+        tags: ["experiment"],
+    },
+    {
+        id: "feedback",
+        group: "tx",
+        label: "error feedback",
+        sub: "δ ← δ − what was sent",
+        tags: ["experiment"],
+    },
+];
+const f3 = (v) => Math.abs(v) < 1e-3 && v !== 0 ? v.toExponential(2) : v.toFixed(4);
+/** The animation's state sequence: one stage per step, computed from the run (worker 0's chunk where one is shown). */
+function chainStages(run, inp, bytes) {
+    const p = run.params;
+    const E2 = p.mode === "Eprime";
+    const o0 = run.optics[0];
+    const P = p.planes;
+    const W = inp.workers;
+    const k = run.pos.length;
+    const err = Math.max(...run.sent[0].map((v, j) => Math.abs(v - run.band[0][j])));
+    // every output of each plane (worker 0), to show the band among them
+    const full = P === null ? [run.coef[0]] : o0.bits.map((b) => encode(b, run.D));
+    const stages = [
+        {
+            block: "grad",
+            tags: ["experiment"],
+            caption: `TX GPU: worker 0's gradient for one chunk of ${inp.m} values (illustrative inputs; the run has ${W} workers).`,
+            view: {
+                kind: "strip",
+                series: [{ name: "g", values: inp.grad[0], tone: "a" }],
+            },
+            bytes: null,
+        },
+        {
+            block: "delta",
+            tags: ["experiment"],
+            caption: `The delta: δ ← ${inp.decay}·δ + ${inp.lr}·g. The residual error feedback keeps (out of band, as late in training) dominates it.`,
+            view: {
+                kind: "strip",
+                series: [
+                    { name: "residual", values: inp.residual[0], tone: "muted" },
+                    { name: "δ", values: run.delta[0], tone: "a" },
+                ],
+            },
+            bytes: null,
+        },
+        {
+            block: "chunk",
+            tags: ["experiment"],
+            caption: `Cut into 1-D chunks of ${inp.m}: the module's transforms are 1 × N and power-of-2 (the experiment's E runs use 1-D 256). Its DCT would put this much in the band of ${k}: shown shaded.`,
+            view: {
+                kind: "strip",
+                series: [{ name: "DCT of δ", values: run.coef[0], tone: "a" }],
+                band: k,
+            },
+            bytes: null,
+        },
+        {
+            block: "port",
+            tags: E2 ? ["paper", "simulation"] : ["paper"],
+            caption: E2
+                ? `E′: the dense delta goes up to the switch, where a module on each worker-facing port computes the band (the simulation's switch variant): every value crosses the worker's link.`
+                : `The host FPGA card sends the dense delta through the QSFP56 port into the pluggable: every value enters the module, not just the band.`,
+            view: {
+                kind: "strip",
+                series: [{ name: "δ", values: run.delta[0], tone: "a" }],
+            },
+            bytes: [
+                {
+                    label: E2
+                        ? "dense delta up to the switch"
+                        : "dense delta into the module",
+                    value: E2 ? bytes.switchUp : bytes.dense,
+                },
+            ],
+        },
+        {
+            block: "quant",
+            tags: ["experiment"],
+            caption: P === null
+                ? "Exact input (no bit planes): the control run's setting."
+                : `Each value becomes a ${P}-bit two's-complement integer against the full scale κ·RMS = ${f3(run.scale)} (a mean square: MAC only). ${o0.clipped} of ${inp.m} clip in this chunk.`,
+            view: o0.q
+                ? { kind: "strip", series: [{ name: "q", values: o0.q, tone: "a" }] }
+                : {
+                    kind: "strip",
+                    series: [{ name: "δ", values: run.delta[0], tone: "a" }],
+                },
+            bytes: null,
+        },
+        {
+            block: "mzm",
+            tags: ["paper", "experiment"],
+            caption: P === null
+                ? "The modulators write the values onto light (exact input: not what the module does; it takes binary NRZ only)."
+                : `The modulators take binary (NRZ) levels only, so the integers go in as ${P} bit planes, one pass each: plane b is bit b of every value (the top plane carries the sign).`,
+            view: P === null
+                ? {
+                    kind: "strip",
+                    series: [{ name: "δ", values: run.delta[0], tone: "a" }],
+                }
+                : { kind: "bits", bits: o0.bits },
+            bytes: null,
+        },
+        {
+            block: "oft",
+            tags: ["paper", "assumption"],
+            caption: `The passive diffractive device transforms each plane by propagation, with no operation count. The experiment emulates it as the same orthonormal DCT (an assumption: the paper's device computes an optical Fourier transform).`,
+            view: { kind: "outputs", rows: full, band: k },
+            bytes: null,
+        },
+        {
+            block: "pd",
+            tags: ["paper", "assumption"],
+            caption: `Only the band's ${k} of ${inp.m} outputs are read (an assumption: a fixed band is a fixed set of output ports), by balanced photodiodes, so the outputs' signs survive (coherent detection).`,
+            view: { kind: "planes", ideal: o0.ideal, read: null },
+            bytes: null,
+        },
+        {
+            block: "adc",
+            tags: ["paper", "experiment"],
+            caption: p.enob === null
+                ? "TIAs and ADCs read each plane's band exactly (no readout noise)."
+                : `TIAs and ADCs read each plane at ENOB ${p.enob}: noise RMS = FS·2^-ENOB·2/√12 = ${f3(run.sigma)} with FS = ${run.fs.toFixed(2)}, the largest a 0/1 plane can make.`,
+            view: { kind: "planes", ideal: o0.ideal, read: o0.read },
+            bytes: null,
+        },
+        {
+            block: "fpga",
+            tags: ["experiment"],
+            caption: P === null
+                ? `The band values, as read. Largest error against the exact band: ${f3(err)}.`
+                : `The FPGA recombines the planes, Σ 2^b · plane b (the top plane negative), times the full scale: ${k} band values. Largest error against the exact band: ${f3(err)}.`,
+            view: {
+                kind: "values",
+                series: [
+                    { name: "exact band", values: run.band[0], tone: "muted" },
+                    { name: "sent", values: run.sent[0], tone: "a" },
+                ],
+            },
+            bytes: null,
+        },
+        {
+            block: "fibre",
+            tags: ["experiment"],
+            caption: `Values only: the positions are fixed, so no indices are sent. Top-k must send each value's position too.`,
+            view: {
+                kind: "values",
+                series: [{ name: "sent", values: run.sent[0], tone: "a" }],
+            },
+            bytes: [
+                {
+                    label: "band payload",
+                    value: bytes.bandPayload,
+                    topk: bytes.topkPayload,
+                    topkLabel: "top-k payload (values + indices)",
+                },
+            ],
+        },
+        {
+            block: "net",
+            tags: E2 ? ["simulation"] : ["experiment"],
+            caption: E2
+                ? `E′ (hypothetical, simulated): the switch sums the ${W} workers' bands, returns each worker its own band (the loopback feedback needs), and the DCs all-reduce the sum.`
+                : `All-gather: every worker receives all ${W} workers' band values, its own included (which is what lets it feed back what it sent). Wire bytes grow with the workers.`,
+            view: { kind: "workers", rows: run.sent, sum: E2 ? run.sum : undefined },
+            bytes: E2
+                ? [{ label: "dense up to the switch", value: bytes.switchUp }]
+                : [
+                    {
+                        label: "band wire (all-gather)",
+                        value: bytes.bandWire,
+                        topk: bytes.topkWire,
+                        topkLabel: "top-k wire (all-gather)",
+                    },
+                ],
+        },
+        {
+            block: "place",
+            tags: ["experiment"],
+            caption: E2
+                ? `RX: the sum divided by ${W}, placed at the band positions 0–${k - 1}; zeros everywhere else.`
+                : `RX: each position's mean over the ${W} workers (scatter-mean), placed at the band positions 0–${k - 1}; zeros everywhere else.`,
+            view: {
+                kind: "strip",
+                series: [{ name: "mean", values: run.agg, tone: "a" }],
+                band: k,
+            },
+            bytes: null,
+        },
+        {
+            block: "idct",
+            tags: ["experiment"],
+            caption: `The inverse DCT turns the ${k} coefficients back into ${inp.m} values: a smooth update, because only low frequencies were kept.`,
+            view: {
+                kind: "strip",
+                series: [{ name: "update", values: run.update, tone: "a" }],
+            },
+            bytes: null,
+        },
+        {
+            block: "sign",
+            tags: ["experiment"],
+            caption: `DeMo applies the sign: every weight in the chunk moves by ±lr (${run.sign.filter((s) => s > 0).length} up, ${run.sign.filter((s) => s < 0).length} down).`,
+            view: {
+                kind: "strip",
+                series: [{ name: "sign", values: run.sign, tone: "b" }],
+            },
+            bytes: null,
+        },
+        {
+            block: "feedback",
+            tags: ["experiment"],
+            caption: `Error feedback: worker 0 subtracts the inverse DCT of the values it actually sent, returned to it by the ${E2 ? "switch's loopback" : "all-gather"}, so the optics' errors stay in the residual and go out on later steps.`,
+            view: {
+                kind: "strip",
+                series: [
+                    { name: "δ before", values: run.delta[0], tone: "muted" },
+                    { name: "δ after", values: run.residualAfter[0], tone: "a" },
+                ],
+            },
+            bytes: null,
+        },
+    ];
+    return stages;
+}
+
+
+const C = {
+    a: "var(--chain-a, #0072B2)",
+    b: "var(--chain-b, #D55E00)",
+    muted: "var(--chain-muted, #a3a3a3)",
+    band: "var(--chain-band, rgba(0,158,115,0.18))",
+    box: "var(--chain-box, rgba(127,127,127,0.08))",
+    line: "var(--chain-line, #737373)",
+};
+/** The source tags: a filled pill with a letter, colour and letter both (never colour alone). */
+const TAG = {
+    paper: {
+        letter: "P",
+        fill: "#009E73",
+        ink: "#000",
+        name: "paper (arXiv:2608.21536)",
+    },
+    experiment: {
+        letter: "X",
+        fill: "#0072B2",
+        ink: "#fff",
+        name: "the experiment's model",
+    },
+    simulation: {
+        letter: "S",
+        fill: "#CC79A7",
+        ink: "#000",
+        name: "the simulation",
+    },
+    assumption: { letter: "A", fill: "#E69F00", ink: "#000", name: "assumption" },
+};
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const n2 = (v) => (Math.round(v * 10) / 10).toString();
+/** Short labels for narrow boxes. */
+const SHORT = {
+    grad: () => "gradient g",
+    delta: () => "δ ← decay·δ + lr·g",
+    chunk: () => "1-D chunks of 256",
+    port: () => "host card → QSFP56",
+    quant: () => "P-bit integers",
+    mzm: () => "4 × modulator",
+    oft: () => "optical FT",
+    pd: () => "read 16 of 256",
+    adc: () => "TIAs / ADCs",
+    fpga: () => "FPGA: Σ 2^b·plane",
+    fibre: () => "values, no indices",
+    net: (m) => (m === "Eprime" ? "switch sum" : "all-gather"),
+    place: () => "place, mean",
+    idct: () => "inverse DCT",
+    sign: () => "sign → weights",
+    feedback: () => "error feedback",
+};
+/** A block's label (the network block depends on the variant). */
+function blockLabel(id, mode) {
+    if (id === "net")
+        return mode === "Eprime" ? "switch sums, loopback" : "all-gather";
+    return BLOCKS.find((b) => b.id === id).label;
+}
+const GROUP_NAME = (g, mode) => g === "tx"
+    ? "TX GPU"
+    : g === "module"
+        ? mode === "Eprime"
+            ? "module at the switch port (E′)"
+            : "pluggable module (E)"
+        : g === "net"
+            ? "fibre and network"
+            : "RX GPU";
+/**
+ * The block diagram. `active` is the block of the current stage; `done`
+ * lists the blocks already passed. Four columns when wide, two when narrow.
+ */
+function diagramSvg(width, mode, active, done) {
+    const narrow = width < 560;
+    const cols = narrow
+        ? [
+            ["tx", "module"],
+            ["net", "rx"],
+        ]
+        : [["tx"], ["module"], ["net"], ["rx"]];
+    const gap = narrow ? 18 : 22;
+    const colW = (width - gap * (cols.length - 1)) / cols.length;
+    const bh = 40;
+    const vg = 12;
+    const head = 22;
+    const boxes = [];
+    const heads = [];
+    let maxY = 0;
+    cols.forEach((groups, ci) => {
+        const x = ci * (colW + gap);
+        let y = 0;
+        for (const g of groups) {
+            heads.push(`<text x="${n2(x + (narrow ? 22 : 0))}" y="${n2(y + 14)}" font-size="11" font-weight="600" fill="currentColor">${esc(GROUP_NAME(g, mode))}</text>`);
+            y += head;
+            for (const b of BLOCKS.filter((b) => b.group === g)) {
+                // narrow: the feedback box leaves a strip on the left for the arrow from the TX GPU to the module
+                const inset = narrow && b.id === "feedback" ? 22 : 0;
+                boxes.push({ id: b.id, x: x + inset, y, w: colW - inset, h: bh });
+                y += bh + vg;
+            }
+            y += 8;
+        }
+        maxY = Math.max(maxY, y);
+    });
+    const at = (id) => boxes.find((b) => b.id === id);
+    const parts = [];
+    // the forward path, in chain order (feedback excluded)
+    const chain = BLOCKS.filter((b) => b.id !== "feedback").map((b) => b.id);
+    for (let i = 1; i < chain.length; i++) {
+        const a = at(chain[i - 1]);
+        const b = at(chain[i]);
+        const d = Math.abs(a.x - b.x) < 1
+            ? b.y - (a.y + a.h) > vg + 1
+                ? `M${n2(a.x + 10)} ${n2(a.y + a.h)} V${n2(b.y - 1)}`
+                : `M${n2(a.x + a.w / 2)} ${n2(a.y + a.h)} V${n2(b.y - 1)}`
+            : `M${n2(a.x + a.w)} ${n2(a.y + a.h / 2)} H${n2(a.x + a.w + gap / 2)} V${n2(b.y + b.h / 2)} H${n2(b.x - 1)}`;
+        parts.push(`<path d="${d}" fill="none" stroke="${C.line}" stroke-width="1.4" marker-end="url(#chain-arrow)"/>`);
+    }
+    // error feedback: the sender's own values come back from the network, and leave the delta
+    const net = at("net");
+    const fb = at("feedback");
+    const de = at("delta");
+    const fbOn = active === "feedback";
+    const dash = `fill="none" stroke="${fbOn ? C.b : C.line}" stroke-width="${fbOn ? 2.2 : 1.4}" stroke-dasharray="5 4" marker-end="url(#chain-arrow)"`;
+    if (narrow)
+        parts.push(`<path d="M${n2(net.x)} ${n2(net.y + net.h / 2)} H${n2(fb.x + fb.w + gap / 2)} V${n2(fb.y + fb.h * 0.7)} H${n2(fb.x + fb.w + 1)}" ${dash}/>`);
+    else
+        parts.push(`<path d="M${n2(net.x + net.w / 2)} ${n2(net.y + net.h)} V${n2(maxY + 4)} H${n2(fb.x + fb.w / 2)} V${n2(fb.y + fb.h + 1)}" ${dash}/>`);
+    parts.push(`<path d="M${n2(fb.x + fb.w)} ${n2(fb.y + fb.h * 0.3)} H${n2(fb.x + fb.w + gap * 0.3)} V${n2(de.y + de.h / 2)} H${n2(de.x + de.w + 1)}" ${dash}/>`);
+    // the blocks
+    for (const bx of boxes) {
+        const b = BLOCKS.find((x) => x.id === bx.id);
+        const on = bx.id === active;
+        const past = done.includes(bx.id);
+        const tagW = b.tags.length * 15 + 6;
+        const full = blockLabel(b.id, mode);
+        // monospace-ish estimate (0.58 em a character): the short label when the long one would not fit
+        const label = full.length * 11.5 * 0.58 > bx.w - tagW - 10 ? SHORT[b.id](mode) : full;
+        const sub = b.id === "net"
+            ? mode === "Eprime"
+                ? "simulated (hypothetical)"
+                : "every worker's values"
+            : b.sub;
+        parts.push(`<g data-block="${b.id}" data-active="${on}" opacity="${on || past ? 1 : 0.55}">` +
+            `<rect x="${n2(bx.x)}" y="${n2(bx.y)}" width="${n2(bx.w)}" height="${bx.h}" rx="6" fill="${on ? C.band : C.box}" stroke="${on ? C.a : C.line}" stroke-width="${on ? 2.5 : 1}"/>` +
+            `<text x="${n2(bx.x + 7)}" y="${n2(bx.y + 16)}" font-size="11.5" font-weight="${on ? 700 : 500}" fill="currentColor">${esc(label)}</text>` +
+            `<text x="${n2(bx.x + 7)}" y="${n2(bx.y + 31)}" font-size="10" fill="currentColor" opacity="0.75">${esc(sub)}</text>` +
+            b.tags
+                .map((t, i) => {
+                const T = TAG[t];
+                const tx = bx.x + bx.w - 16 - i * 15;
+                return `<rect x="${n2(tx)}" y="${n2(bx.y + 4)}" width="13" height="13" rx="3" fill="${T.fill}"/><text x="${n2(tx + 6.5)}" y="${n2(bx.y + 14)}" font-size="9" font-weight="700" text-anchor="middle" fill="${T.ink}">${T.letter}</text>`;
+            })
+                .join("") +
+            `</g>`);
+    }
+    const h = maxY + (narrow ? 4 : 12);
+    return (`<svg viewBox="0 0 ${n2(width)} ${n2(h)}" width="100%" role="img" aria-label="Block diagram of the chain, ${mode === "Eprime" ? "variant E′ (band computed and summed at the switch)" : "variant E (pluggable module, all-gather)"}: TX GPU, the module, the fibre and network, the RX GPU, with the error-feedback loop dashed" style="display:block;overflow:visible">` +
+        `<defs><marker id="chain-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="${C.line}"/></marker></defs>` +
+        heads.join("") +
+        parts.join("") +
+        `</svg>`);
+}
+/** The legend of the source tags, as HTML-safe SVG. */
+function legendSvg(width) {
+    const items = Object.keys(TAG).map((s) => TAG[s]);
+    const perRow = width < 560 ? 2 : 4;
+    const cw = width / perRow;
+    const rows = Math.ceil(items.length / perRow);
+    return (`<svg viewBox="0 0 ${n2(width)} ${rows * 20}" width="100%" role="img" aria-label="Source tags: P paper, X the experiment's model, S the simulation, A assumption" style="display:block">` +
+        items
+            .map((T, i) => {
+            const x = (i % perRow) * cw;
+            const y = Math.floor(i / perRow) * 20;
+            return `<rect x="${n2(x)}" y="${y + 3}" width="13" height="13" rx="3" fill="${T.fill}"/><text x="${n2(x + 6.5)}" y="${y + 13}" font-size="9" font-weight="700" text-anchor="middle" fill="${T.ink}">${T.letter}</text><text x="${n2(x + 18)}" y="${y + 14}" font-size="11" fill="currentColor">${esc(T.name)}</text>`;
+        })
+            .join("") +
+        `</svg>`);
+}
+const TONE = { a: C.a, b: C.b, muted: C.muted };
+function legend(series, x0) {
+    let x = x0;
+    return series
+        .map((s) => {
+        const out = `<rect x="${n2(x)}" y="4" width="10" height="10" fill="${TONE[s.tone]}"/><text x="${n2(x + 14)}" y="13" font-size="11" fill="currentColor">${esc(s.name)}</text>`;
+        x += 24 + s.name.length * 6.5;
+        return out;
+    })
+        .join("");
+}
+/** The data panel of a stage: the chunk's numbers at that point of the chain. */
+function viewSvg(view, width) {
+    var _a;
+    const L = 4;
+    const R = width - 4;
+    const top = 22;
+    let h = 150;
+    const parts = [];
+    const bandRect = (band, m, y0, y1) => band
+        ? `<rect x="${n2(L)}" y="${n2(y0)}" width="${n2(((R - L) * band) / m)}" height="${n2(y1 - y0)}" fill="${C.band}"/>`
+        : "";
+    if (view.kind === "strip") {
+        const m = view.series[0].values.length;
+        const mx = Math.max(1e-300, ...view.series.flatMap((s) => s.values.map(Math.abs)));
+        const y0 = top + 4;
+        const y1 = h - 6;
+        const mid = (y0 + y1) / 2;
+        const half = (y1 - y0) / 2;
+        parts.push(bandRect(view.band, m, y0, y1));
+        parts.push(`<path d="M${L} ${n2(mid)} H${n2(R)}" stroke="${C.line}" stroke-width="0.6"/>`);
+        for (const s of view.series) {
+            const dx = (R - L) / m;
+            const d = s.values
+                .map((v, i) => `${i ? "L" : "M"}${n2(L + (i + 0.5) * dx)} ${n2(mid - (v / mx) * half)}`)
+                .join("");
+            parts.push(`<path d="${d}" fill="none" stroke="${TONE[s.tone]}" stroke-width="${s.tone === "muted" ? 1 : 1.5}"/>`);
+        }
+        parts.push(legend(view.series, L));
+        if (view.band)
+            parts.push(`<text x="${n2(R)}" y="13" font-size="11" text-anchor="end" fill="currentColor">shaded: the band, positions 0–${view.band - 1} of ${m}</text>`);
+    }
+    else if (view.kind === "bits" || view.kind === "outputs") {
+        const rows = view.kind === "bits" ? view.bits : view.rows;
+        const P = rows.length;
+        const m = rows[0].length;
+        const lab = 54;
+        const rh = Math.max(7, Math.min(14, 150 / P));
+        h = top + P * rh + 8;
+        const dx = (R - L - lab) / m;
+        if (view.band)
+            parts.push(`<rect x="${n2(L + lab)}" y="${top}" width="${n2(dx * view.band)}" height="${n2(P * rh)}" fill="${C.band}"/>`);
+        rows.forEach((r, b) => {
+            const y = top + (P - 1 - b) * rh;
+            parts.push(`<text x="${L}" y="${n2(y + rh - 1.5)}" font-size="${rh >= 10 ? 10 : 8}" fill="currentColor">${b === P - 1 && view.kind === "bits" ? "sign" : `plane ${b}`}</text>`);
+            if (view.kind === "bits") {
+                const d = r
+                    .map((v, i) => v
+                    ? `M${n2(L + lab + i * dx)} ${n2(y + 1)}h${n2(Math.max(0.6, dx - 0.3))}v${n2(rh - 2)}h${n2(-Math.max(0.6, dx - 0.3))}z`
+                    : "")
+                    .join("");
+                parts.push(`<path d="${d}" fill="${C.a}"/>`);
+            }
+            else {
+                const mx = Math.max(1e-300, ...r.map(Math.abs));
+                const d = r
+                    .map((v, i) => `${i ? "L" : "M"}${n2(L + lab + (i + 0.5) * dx)} ${n2(y + rh / 2 - Math.sign(v) * Math.sqrt(Math.abs(v) / mx) * (rh / 2 - 1))}`)
+                    .join("");
+                parts.push(`<path d="${d}" fill="none" stroke="${C.a}" stroke-width="1"/>`);
+            }
+        });
+        parts.push(`<text x="${L}" y="13" font-size="11" fill="currentColor">${view.kind === "bits" ? `${P} binary planes of ${m} values (filled = 1)` : `every output of each plane (√ scale); shaded: the ${view.band} read`}</text>`);
+    }
+    else if (view.kind === "planes") {
+        const P = view.ideal.length;
+        const k = view.ideal[0].length;
+        const lab = 54;
+        const rh = Math.max(9, Math.min(16, 150 / P));
+        h = top + P * rh + 8;
+        const mx = Math.max(1e-300, ...view.ideal.flat().map(Math.abs), ...((_a = view.read) !== null && _a !== void 0 ? _a : []).flat().map(Math.abs));
+        const cw = (R - L - lab) / k;
+        view.ideal.forEach((r, b) => {
+            const y = top + (P - 1 - b) * rh;
+            const mid = y + rh / 2;
+            parts.push(`<text x="${L}" y="${n2(y + rh - 2)}" font-size="${rh >= 12 ? 10 : 8}" fill="currentColor">${P === 1 ? "band" : `plane ${b}`}</text>`);
+            r.forEach((v, j) => {
+                const x = L + lab + j * cw;
+                const hh = Math.sqrt(Math.abs(v) / mx) * (rh / 2 - 1);
+                parts.push(`<rect x="${n2(x + 1)}" y="${n2(v >= 0 ? mid - hh : mid)}" width="${n2(Math.max(1, cw - 2))}" height="${n2(Math.max(0.5, hh))}" fill="${view.read ? C.muted : C.a}"/>`);
+                if (view.read) {
+                    const u = view.read[b][j];
+                    const yy = mid - Math.sign(u) * Math.sqrt(Math.abs(u) / mx) * (rh / 2 - 1);
+                    parts.push(`<path d="M${n2(x + 1)} ${n2(yy)} h${n2(Math.max(1, cw - 2))}" stroke="${C.b}" stroke-width="1.6"/>`);
+                }
+            });
+        });
+        parts.push(`<text x="${L}" y="13" font-size="11" fill="currentColor">${view.read ? "grey: each plane's exact band; orange tick: as read, with noise (√ scale)" : `the ${k} band outputs of each plane (√ scale)`}</text>`);
+    }
+    else if (view.kind === "values") {
+        const k = view.series[0].values.length;
+        const mx = Math.max(1e-300, ...view.series.flatMap((s) => s.values.map(Math.abs)));
+        const y0 = top + 4;
+        const y1 = h - 6;
+        const mid = (y0 + y1) / 2;
+        const half = (y1 - y0) / 2;
+        const gw = (R - L) / k;
+        const bw = (gw - 2) / view.series.length;
+        parts.push(`<path d="M${L} ${n2(mid)} H${n2(R)}" stroke="${C.line}" stroke-width="0.6"/>`);
+        view.series.forEach((s, si) => s.values.forEach((v, j) => {
+            const hh = (Math.abs(v) / mx) * half;
+            parts.push(`<rect x="${n2(L + j * gw + 1 + si * bw)}" y="${n2(v >= 0 ? mid - hh : mid)}" width="${n2(Math.max(1, bw - 1))}" height="${n2(Math.max(0.5, hh))}" fill="${TONE[s.tone]}"/>`);
+        }));
+        parts.push(legend(view.series, L));
+    }
+    else {
+        const rows = view.sum
+            ? [...view.rows, view.sum.map((v) => v / view.rows.length)]
+            : view.rows;
+        const k = rows[0].length;
+        const lab = 62;
+        const rh = 15;
+        h = top + rows.length * rh + 8;
+        const mx = Math.max(1e-300, ...rows.flat().map(Math.abs));
+        const cw = (R - L - lab) / k;
+        rows.forEach((r, w) => {
+            const y = top + w * rh;
+            const mid = y + rh / 2;
+            const isSum = !!view.sum && w === rows.length - 1;
+            parts.push(`<text x="${L}" y="${n2(y + rh - 3)}" font-size="10" fill="currentColor">${isSum ? "sum ÷ W" : `worker ${w}`}</text>`);
+            r.forEach((v, j) => {
+                const hh = (Math.abs(v) / mx) * (rh / 2 - 1);
+                parts.push(`<rect x="${n2(L + lab + j * cw + 1)}" y="${n2(v >= 0 ? mid - hh : mid)}" width="${n2(Math.max(1, cw - 2))}" height="${n2(Math.max(0.5, hh))}" fill="${isSum ? C.b : C.a}"/>`);
+            });
+        });
+        parts.push(`<text x="${L}" y="13" font-size="11" fill="currentColor">each worker's ${k} band values${view.sum ? "; last row: the switch's sum ÷ workers" : ""}</text>`);
+    }
+    return `<svg viewBox="0 0 ${n2(width)} ${n2(h)}" width="100%" role="img" aria-label="The chunk's values at this stage" style="display:block">${parts.join("")}</svg>`;
+}
+/** Bytes per worker per step on this hop: the band (or E′) against top-k, as horizontal bars. */
+function bytesSvg(bytes, all, width) {
+    var _a;
+    const rows = [];
+    for (const b of bytes) {
+        rows.push([b.label, b.value, C.a]);
+        if (b.topk !== undefined)
+            rows.push([(_a = b.topkLabel) !== null && _a !== void 0 ? _a : "top-k", b.topk, C.b]);
+    }
+    const mx = Math.max(all.dense, ...rows.map((r) => r[1]));
+    const narrow = width < 560;
+    const lab = narrow ? 0 : 230;
+    const rh = narrow ? 34 : 20;
+    const h = rows.length * rh + 4;
+    const parts = rows.map(([name, v, c], i) => {
+        const y = i * rh;
+        const by = narrow ? y + 16 : y + 3;
+        const w = Math.max(2, ((width - lab - 90) * v) / mx);
+        return (`<text x="0" y="${n2(narrow ? y + 12 : y + 14)}" font-size="11" fill="currentColor">${esc(name)}</text>` +
+            `<rect x="${lab}" y="${n2(by)}" width="${n2(w)}" height="13" fill="${c}"/>` +
+            `<text x="${n2(lab + w + 5)}" y="${n2(by + 11)}" font-size="11" fill="currentColor">${(v / 1e6).toFixed(2)} MB</text>`);
+    });
+    return `<svg viewBox="0 0 ${n2(width)} ${h}" width="100%" role="img" aria-label="Bytes per worker per step on this hop" style="display:block">${parts.join("")}</svg>`;
+}
+
+const INPUTS = {"decay":0.999,"grad":[[-0.122829,-0.049853,0.550418,0.246211,-0.339737,0.394019,1.27948,0.935071,1.13415,1.69819,2.42583,0.845644,1.95561,0.228444,0.862287,-0.152621,1.18373,0.756154,0.899254,-0.269397,0.795327,0.25325,0.498046,1.27773,1.66176,1.35499,0.872217,0.689039,1.91727,1.22591,1.10103,1.78873,-0.166317,1.75663,2.07146,1.17386,0.774754,-0.00431603,1.1287,0.408635,0.790083,0.728537,1.13089,1.74015,0.584959,0.223246,0.0613311,-0.102799,-0.578755,-0.45473,0.719644,-0.500561,-0.000915271,-0.812591,0.167747,-0.775628,0.0745115,2.05456,0.504417,1.59107,1.15109,0.638417,0.101918,0.973011,-0.208533,0.548464,-0.985845,-0.597465,-0.309946,-0.211849,-0.939682,-0.320608,0.229746,0.0499289,1.09118,1.04605,-0.590032,-0.709944,-0.677515,-0.149182,0.705454,-0.980864,-0.747805,-1.57421,-1.49191,-1.86908,-0.474155,0.379502,-0.146056,1.11032,0.509672,0.380036,0.609347,0.38527,0.498519,-0.992214,-2.19639,-1.01221,-1.61079,-1.3019,-0.200339,-1.65858,-0.253164,0.175715,0.185629,0.809274,-0.0215326,-0.176735,0.697804,0.236099,0.29824,-0.762518,-0.225948,-1.58604,-2.14307,-2.68167,-1.94795,-0.532269,-1.59477,-0.688822,1.0868,0.476037,1.07302,-0.680697,-1.74261,0.3973,-1.63443,-0.987161,-1.11953,-1.95212,-0.49534,-0.451202,-0.923554,-1.08468,-0.72935,-1.27287,-0.553418,-0.318196,-0.683877,0.334582,-1.12078,-0.704891,-2.0092,-0.609535,-0.700515,-0.962212,0.308806,-0.88251,-1.90817,0.453611,-1.43231,-0.117665,0.122752,-0.647829,0.823205,0.191711,0.204906,-0.74736,0.183965,-1.3776,-2.15622,-0.389737,-1.56251,-1.24071,0.0193545,-0.248988,-0.307086,0.206518,-0.645756,0.416761,0.733945,0.543328,-0.0917066,-2.34964,0.045625,-0.438848,-0.9506,-0.453257,-0.891232,-0.972661,-1.92795,-1.75297,-0.40608,-0.275774,0.0837394,0.387608,0.740032,0.601422,0.624325,0.501738,0.621797,-0.581999,-0.13167,-0.483897,-0.946253,-1.28988,-0.626409,-0.0436258,-0.838195,0.235554,0.587911,0.407379,0.554466,-0.0295451,0.0787504,-0.444953,-0.209877,-0.493139,-0.74691,-0.370361,-0.758272,-1.00953,-0.817574,-0.788662,0.095773,0.412713,1.80301,1.95981,2.03013,2.37516,0.264392,1.16767,0.926532,0.443954,1.15528,1.20353,0.187615,0.048411,-0.825351,-0.522791,0.935568,0.84282,0.408464,1.34382,1.70329,1.96499,1.11854,0.705606,0.516675,0.288074,-0.758644,0.31976,1.15869,0.494557,-0.595482,0.655549,-0.13243,0.107658,1.78825,1.51305,1.0113,0.0274149,0.304189,0.915922,0.597377,0.79264],[1.15962,-0.0111568,0.502842,0.241821,0.186995,0.533512,1.46196,0.457389,1.90802,2.19946,1.35251,1.42651,0.299603,2.38277,1.34463,0.652462,0.407319,0.526384,-0.174117,0.43188,-0.169553,0.86305,0.36555,1.51112,1.06351,1.39358,3.02554,1.66707,1.21136,0.896179,0.0456941,1.12917,1.2846,0.259573,1.18696,0.13545,-0.785342,0.00203417,-0.102187,0.509527,1.17926,0.345412,0.912449,1.08692,0.478492,0.268897,0.715415,1.00159,-0.0820299,-0.357805,-0.141068,0.0293958,-0.48099,-0.282943,-0.0728045,-0.382634,0.387243,0.365808,1.80423,0.608686,1.15233,0.95792,-0.177637,-0.548504,-0.369395,0.0295538,-0.898341,-1.02556,-2.32938,-0.673849,-0.0119139,0.344642,0.60485,0.365442,0.548487,1.1926,0.502793,-1.00862,0.703429,-0.866146,0.310723,0.265038,-0.440731,-0.393869,0.250867,-1.35602,-0.304837,-0.0453882,-0.512293,1.47954,0.0425434,-0.0368645,0.459623,0.711514,-0.550793,-0.870782,-0.521094,-1.93643,-1.70734,-1.78854,-1.45952,-1.08223,0.394482,0.152611,-0.0773737,0.00334838,0.778096,0.489211,0.60914,0.632504,-1.1409,-2.2416,-1.21317,-1.36912,-1.33481,-1.81871,-1.42668,-0.688129,-0.348279,0.381184,-1.47692,-1.02124,0.875596,0.279159,0.209431,-0.68343,-1.06876,-0.921833,-1.81365,-2.30088,-2.09326,-1.31089,-0.872106,-0.076229,-0.621119,-0.331812,0.602904,-0.721229,-0.748112,-0.497706,-0.322623,0.781102,-0.866782,-0.123358,-1.42967,-1.04014,-1.03326,-1.12661,-0.892349,-1.55794,-0.0064265,-0.00231255,-0.744251,0.183463,-0.6579,0.0358946,-0.840318,0.0891001,1.18101,0.021468,-0.650261,-1.78654,-1.07832,-0.555994,-1.18733,-0.853316,-1.70332,-0.948682,-1.31826,1.11359,0.351562,0.524889,-0.0908451,-0.97759,-0.183174,-0.889667,-1.31076,-0.886869,-0.984763,-1.20333,-1.50235,-1.46889,-0.624609,0.412083,-0.962091,-0.106459,0.395743,0.48454,0.174005,1.50517,0.304031,-0.864415,-1.73279,-0.969017,-0.121812,-0.889153,-2.23749,-1.38818,-0.119458,0.838833,0.633709,0.893676,1.56984,1.6549,0.334709,0.740361,-0.414364,-0.803089,-0.0691348,-1.44753,-0.543814,-0.383666,0.132328,-0.800013,0.441964,0.465889,1.72087,0.593663,0.477372,1.42775,0.481146,-0.0126949,1.01594,0.416456,-1.98758,-0.871782,-1.06483,0.0431317,0.731626,1.38429,0.93911,0.230592,0.528037,0.846589,1.78093,2.16269,0.0324894,1.23268,1.06966,0.373865,1.88098,0.140924,-0.136007,0.372349,-0.0530693,-0.0607147,1.18026,1.89736,1.25174,2.02189,1.1981,2.25872,1.19442,1.13919,1.03794,-0.432426],[0.136306,1.29671,0.243357,1.16606,1.01537,-0.416251,1.30993,0.421468,1.38013,1.06373,1.34412,1.23103,1.29228,0.697464,-0.0532838,-0.0568759,0.9226,1.2905,0.356167,0.767301,0.970706,-0.254836,-0.351113,0.943051,0.000340523,1.06884,0.362075,0.810107,0.599967,1.18154,0.280845,-0.210013,0.352483,2.00127,0.476577,-0.964139,0.333279,1.93664,0.633493,1.44265,1.46914,1.61582,1.59107,1.1369,0.807719,0.647359,0.735268,0.734388,-0.485497,-0.0752448,-0.0806527,-0.0798578,-0.340991,0.401387,0.00356234,0.043578,-0.248352,0.235398,0.991966,0.990585,-0.345164,1.28479,0.0716172,-0.340289,0.566723,0.33002,-0.981243,-0.845239,-1.32368,0.0527906,0.343405,-0.185458,1.18235,1.1133,0.610556,1.12618,-0.408584,0.215531,0.242417,-0.225792,0.715519,-0.56513,-0.678319,-1.73313,-0.976305,-1.16486,0.952112,-0.438205,0.139407,1.00193,0.784959,-0.444903,0.682107,0.519031,-0.299153,-0.232464,-0.760721,-1.91229,-1.58188,-1.27317,-1.55078,-0.673444,-0.110861,-0.227754,-0.314419,0.955875,0.336001,0.444286,-0.383653,-0.326669,0.0628747,-0.443654,-1.31233,-1.41185,-1.38749,-2.02413,-1.3983,-1.33031,-1.54727,-0.3261,-0.263432,-0.910324,-0.478573,-0.138014,-2.00126,-0.402127,-0.624229,-0.652376,-1.60695,-2.23643,-1.04995,-2.20579,-0.929852,-1.47241,-1.45152,-0.43872,0.263367,-0.3494,-0.319981,-1.18806,0.233836,-0.389123,-0.820489,-0.122598,-2.08653,-1.63776,-1.43914,-1.62371,-2.80492,-0.934912,-0.898415,0.0155512,0.900796,-0.232731,0.21668,0.13079,-0.0357941,-0.424905,-0.365669,-0.184138,-1.59817,-0.104256,-1.00269,-1.08494,-2.48378,-0.937259,-1.27225,-0.0908035,0.364091,0.654836,-0.0318596,0.0453172,0.293047,-1.36003,-0.549014,-0.833442,-0.416379,-1.19454,-0.604318,-1.21074,-0.524623,0.453628,0.306409,0.246859,0.687331,0.0682873,0.0307816,0.072221,0.647115,1.23211,-0.373477,0.00801487,-1.35183,-1.59554,-0.49492,-1.41685,-1.27715,0.623262,-0.151845,0.171579,0.411301,1.0533,0.501342,0.935533,1.39265,0.28515,-1.26724,-0.550094,0.0387073,0.079071,-0.427587,0.284264,-1.00822,0.657563,0.339336,0.946726,-0.887013,1.5748,1.28316,2.27261,1.10755,0.1799,-0.012047,0.401591,0.0639547,-0.699674,-1.04081,0.566136,-0.295117,0.108314,0.195427,1.72722,1.87608,0.805244,1.44134,0.850166,2.29575,1.1331,0.34482,-0.0182152,0.265737,-0.327843,0.770094,-0.549684,-0.467356,1.44513,0.671531,2.05711,1.92063,0.651602,1.05786,1.30947,0.933283,1.00033,0.210744,0.327863],[0.846473,0.992148,-0.252565,0.185317,0.408846,-0.129526,1.44831,1.41326,1.53622,1.24692,1.85327,1.85161,1.8427,0.864402,0.966925,0.315825,0.179094,0.844684,0.248867,0.169708,0.746519,0.96396,0.319904,0.585185,1.56311,1.54797,1.12326,1.90204,0.991208,-0.289272,0.191655,-0.406212,1.01057,0.524088,0.252136,-1.18774,-0.607859,0.303532,-0.536117,1.23933,0.741302,0.816929,0.92255,0.397218,0.292416,-0.324703,0.67719,0.721923,0.137346,-0.0764883,-0.620369,0.00583808,-1.62603,-0.745122,-0.329092,-0.0362511,0.624512,0.586393,0.947479,1.66654,1.70132,1.11877,1.24234,1.23865,0.120149,-1.20697,0.0487702,-1.22882,0.527867,0.599282,-0.510337,-0.58204,-0.0658593,0.5231,1.45354,-0.0480233,1.11336,-0.868586,0.819642,-0.256716,-0.394604,-0.815126,-0.33675,-0.713551,0.148949,-1.76049,-1.00019,-0.996443,0.498642,-0.740098,1.84957,0.456975,1.03214,-0.486955,-0.07237,-0.136492,-1.24736,-1.21772,-0.309357,-0.525761,-0.851541,0.185946,-1.87952,-0.217066,-0.319634,0.992411,0.919409,0.933836,-0.283713,0.140859,0.112159,-0.1115,-1.75593,-1.82674,-1.35975,-0.622496,-0.914934,-0.197888,-1.88729,-0.580385,0.122152,0.12971,-1.13636,0.574768,-0.0594293,-0.792436,-0.0656108,-2.07928,-1.55658,-0.852361,-1.20132,-1.51562,-1.34669,-1.20711,-0.323868,-0.797906,-0.00322544,-1.50748,0.565115,1.28999,0.0348985,-0.484754,-0.978523,-0.487765,-1.53618,-1.82623,-2.71939,-1.30082,-1.51747,-1.28609,-0.881501,-1.01578,-0.210713,-0.767948,-0.0832378,-0.189896,-1.16264,-1.0691,-0.95311,-1.19849,-0.933209,-1.48781,-1.33717,-1.51202,-2.68838,-1.00492,-1.19201,-0.531337,-0.668898,0.358314,0.0404341,0.515038,0.499609,-0.441176,0.200407,-0.370533,-1.36364,-0.9897,-0.994213,-0.333084,-1.24693,0.0651458,-0.166474,-1.58996,-0.620851,0.639779,-0.380042,0.865492,1.35923,0.187173,0.908767,0.521175,-0.637313,-0.885742,-0.900751,-0.737876,-1.78237,-0.64896,-1.19716,-0.00881296,0.417421,-0.286357,0.167916,0.662289,2.03683,-0.354509,0.234797,-0.693277,-0.647165,-0.00236167,-0.459447,-0.316719,-0.0911891,0.235544,-1.08347,0.772773,0.778184,1.27778,1.64521,1.37702,1.40887,0.0610088,0.738585,0.0926626,-0.17262,0.46089,-0.693207,-0.74344,-0.940053,-0.0279369,1.15785,-0.112474,1.35753,-0.101427,1.07313,1.66593,0.860007,0.145916,0.29201,0.777749,0.834397,0.727101,0.253871,0.222384,0.86494,-0.0949789,0.345425,1.98012,1.90647,1.99151,1.55666,0.784886,0.417487,1.38143,1.22794,-0.293464],[-0.198126,0.130661,0.746244,0.120177,-0.0264174,1.27344,1.24387,0.657887,0.82778,1.97908,0.562541,1.09783,1.41627,1.06508,1.31495,-0.477511,0.383421,0.436498,0.416782,0.608071,-0.315527,1.43175,1.0449,1.31018,0.789608,1.34079,2.04729,1.17542,1.16789,1.05958,-0.310645,0.375103,0.73901,-0.0721671,0.15561,0.183168,-0.669476,0.876562,-0.280419,0.927851,0.722916,0.698122,1.00066,1.41952,1.40638,0.556284,0.564427,-0.03749,-0.596992,0.663594,-0.714667,-0.585754,0.0724626,-0.891069,0.354014,-0.237407,-0.188093,0.353437,0.343565,1.06071,1.72894,1.13464,0.772146,-0.168323,-0.246782,-0.31257,-0.599924,-0.55711,-1.32232,0.607903,-1.02187,-0.0331496,0.819238,0.0894497,1.28893,-0.180164,0.110686,-1.06572,0.682498,-0.965883,-0.96087,-0.324226,-0.725251,-0.332174,-0.510378,-0.195597,-0.7815,-0.276663,0.474467,0.68692,0.921216,-0.0949145,-0.396133,-0.697559,-0.511747,-0.60939,-1.57722,-1.22926,-0.902814,-0.730154,-1.5892,-0.694112,-1.51582,-0.825849,-0.0649241,-0.287289,-0.251797,0.355017,-0.558438,-0.167832,-0.638621,-0.623205,-0.785896,-1.37563,-1.84397,-0.893903,-1.20839,-1.59095,-0.651982,-0.824673,-1.732,-0.647293,-0.268866,-0.400501,-1.22958,-0.76241,-0.568305,-1.76576,-1.13596,-2.63896,-1.16409,-1.76097,-2.09887,-0.442618,-0.606246,-0.0870556,-0.265454,-0.088769,-0.444463,0.0361777,-0.357231,-0.858007,-0.813108,-1.71406,-1.20441,-1.1146,-1.41062,-1.15001,-1.572,-1.16809,-0.906537,0.518493,-1.1437,1.04236,-0.492228,-0.264383,-0.0147292,-0.0388212,-0.656216,-0.77099,-0.300834,0.262621,-1.1034,-0.892681,-1.23381,0.01669,-0.794225,-0.172582,-0.870284,-1.65615,1.37834,0.685717,0.537264,-0.692928,-1.29521,-0.686874,-0.696742,-0.529164,-1.08139,-0.371783,-0.868753,-0.730574,0.0248663,-0.754679,0.192286,-0.0784082,0.0558381,1.44109,1.14196,0.630066,0.805204,-0.085908,0.164273,-1.40279,-1.13075,-0.811704,-1.47899,-0.994185,-0.962668,0.567305,0.241658,0.931451,1.20477,0.77565,0.72262,0.527397,0.380633,0.606632,-1.10428,-0.571391,-1.38677,0.254025,-1.49877,-0.0422326,-0.0640619,0.170217,1.22041,1.32214,0.546107,1.36993,1.13304,0.291207,-0.423913,0.593798,0.257764,-0.045822,-0.744882,0.339164,1.8482,0.209486,0.793935,0.368883,0.692576,2.42036,2.79466,1.21806,0.755155,0.280698,0.110231,0.173875,-0.843355,-0.644572,0.362319,-0.138964,-0.237604,-0.146682,1.51458,0.532916,1.25801,2.01178,1.69436,1.40295,1.19435,0.203812,0.0989354,0.0517381],[-1.51518,-0.105809,0.111932,0.224948,0.3615,0.752213,0.996646,1.99951,1.26694,1.77356,0.928691,1.42092,1.27363,0.784852,-0.307725,-0.298275,0.59718,0.181724,0.0268351,-0.185561,0.396689,0.865674,1.84377,0.927344,0.994088,1.35909,1.91063,2.53022,1.35295,-0.0220149,0.653832,-0.230013,-0.281899,1.27537,-0.0543788,-0.25117,1.07355,0.416532,-0.169134,0.687896,-0.0535756,0.367949,1.05275,-0.577546,1.3279,0.948876,1.14949,0.22784,0.517008,-0.513282,-0.623493,-0.096751,-0.152366,-0.101158,0.862323,0.0923602,0.750686,0.895894,0.937067,1.15441,-0.171532,0.386591,1.14254,0.0136505,0.30477,-0.096604,-2.38967,-1.42837,-0.9994,-0.855209,-0.479904,-0.192628,-0.152748,0.150847,-0.498427,1.84296,1.40422,0.88432,0.0272478,-0.78007,0.932097,-1.33149,-0.0553496,-0.766383,-1.42618,-1.2004,-0.725505,-0.579864,-0.796985,0.510323,-0.176752,0.842612,0.174923,0.161177,-0.137831,-0.760904,-0.899402,-0.994654,0.124675,-2.07474,-1.63869,-1.248,-1.48691,-1.21267,-1.04469,0.0756321,-0.0969708,0.302781,-0.81379,-0.763202,-0.0219723,-0.472708,-2.16987,-0.956176,-1.87201,-2.1609,-0.888439,-0.522681,-2.25024,0.0595458,-0.520233,-0.392198,-0.273085,0.506404,0.435325,-0.367481,-0.376166,0.17262,-1.32607,-2.05598,-1.17879,-1.02501,-1.41439,-1.24684,0.377401,-0.83344,-1.00833,-1.92603,0.256051,0.526307,-1.02666,-0.143943,-0.919585,-0.926233,-1.55577,-1.39789,-0.979032,-1.80615,-1.80309,-1.80211,-0.258918,-1.14295,-0.00271984,-0.917374,-1.3423,-0.409046,-0.0489967,0.255478,-0.172583,-0.719815,-2.63174,-1.00772,-2.24205,-1.73499,-0.114884,-0.380915,-1.38152,-0.691114,0.214009,-0.170227,-0.107795,-0.62771,0.306523,0.254443,-0.810794,-1.76566,0.308695,-1.38301,-0.843722,-1.64862,-1.52515,-0.346067,-0.858744,0.099895,0.436177,-0.0588978,0.629982,1.00435,1.2348,0.150779,0.0332034,-0.871308,-0.171304,-0.84036,-1.84144,-1.24789,-0.949947,-0.947198,-0.656091,-0.811101,0.576255,0.519409,1.44353,0.808962,1.212,-0.265429,0.356683,0.248845,-0.00641339,-0.785646,-1.20196,0.399385,-0.525235,-0.846396,0.0647628,0.716045,0.382901,1.26525,1.66068,1.08372,1.58189,0.67781,0.17367,1.08941,0.241139,-0.267855,-1.48825,-1.18175,-1.1618,0.110032,0.483418,1.12111,1.81044,0.492114,0.668655,0.841541,1.44119,1.02513,-0.122748,-0.250501,0.151157,-0.154646,0.436167,-0.494928,0.175634,-0.00913804,1.59842,1.8022,1.66824,2.03379,2.23285,2.13632,2.06822,0.381021,0.0935929,1.1398],[-0.0135829,-0.867751,-0.0544993,0.930529,0.203499,1.13395,1.0654,0.268249,1.49144,1.31747,1.0013,0.416224,2.1028,0.419241,-0.464134,1.04666,0.104069,0.963742,0.152284,0.251304,0.734082,0.63281,0.83815,1.62026,0.593022,1.56382,1.41982,0.222447,1.71381,1.32917,1.58958,0.217107,-0.33534,2.05994,-0.428779,-0.272537,0.610544,0.13442,0.778844,-0.120383,-0.215039,0.574428,1.36438,0.947523,1.63479,0.657007,0.775919,-0.0659966,-0.59574,-0.634262,-0.532708,1.03246,-0.926077,-0.610939,0.886931,-0.130329,0.846402,-0.663906,0.27163,1.22534,-0.140693,0.836782,0.512982,-0.137391,-0.267986,0.0530905,-0.587423,-0.0440625,-0.123307,0.484394,-0.455579,0.176901,-0.287488,0.930665,0.255654,1.05995,0.414389,0.267797,0.225989,-0.667391,-0.918602,-1.12827,-1.22652,-0.56821,-1.1018,-1.04452,0.0284745,0.218251,-0.0336858,1.74049,-0.244486,1.35669,0.445335,0.686152,-0.379667,0.179328,-1.42385,-0.612476,-1.09773,-0.754886,-1.49838,-0.752927,-1.1907,-0.615696,-0.248296,-0.233758,-0.0494525,-0.509562,-0.00931447,0.663969,1.1571,-1.39987,-1.66211,-1.22385,-1.2147,-2.24077,-2.6749,-0.874693,0.0780712,0.427889,-0.188143,0.795584,-0.108748,-0.928488,-0.35236,0.102166,-0.711711,-1.38648,-1.22271,-1.1864,-1.34892,-1.20406,-1.03287,-0.431356,-0.769437,-0.710925,-0.199385,0.0948567,-1.22106,0.50845,0.748314,-0.421277,-0.29297,-1.35409,-0.746068,-1.8483,-1.33706,-1.1044,-1.81774,-1.81173,-1.09016,-0.932191,-0.520081,-0.782434,0.632393,-0.186604,0.123547,-1.32087,-0.953439,0.0922351,-1.61855,-1.0779,-0.0568706,-1.27182,-0.235559,-1.47242,-0.977773,-0.475739,-0.537991,0.16587,-1.00185,-0.551001,0.810751,-0.0345556,-0.00184161,0.495573,-1.78175,-2.71682,0.00533604,-1.92392,-0.997465,-1.86189,-2.17147,-0.378712,0.267978,-0.219423,-1.04365,0.749831,1.65432,-0.704828,0.507049,-0.122796,-1.72957,-0.275679,-0.914629,-1.10506,-0.0969909,-0.557477,0.559718,1.75601,0.665613,1.05692,0.573182,1.81391,-0.00310498,0.165092,0.122161,-0.266794,-0.850171,-0.0671535,-0.832117,-1.86355,0.311704,0.928605,-0.121482,1.35583,0.509134,0.442969,0.590221,2.10996,1.81518,1.18103,-0.137128,0.637967,-0.772373,0.0560306,-0.727344,-0.685205,-0.465624,-1.09442,-0.537938,0.798145,0.562022,1.91152,2.19212,0.467576,0.278571,0.765144,1.6795,-0.289653,0.235498,-1.17546,-0.706059,0.289071,0.119297,0.888857,0.990795,1.18531,1.35943,2.2765,1.37088,1.78227,0.89087,0.857913,-0.0820451,-0.89735],[-0.0275948,0.231205,-0.0859038,0.628515,-0.0171892,-0.179013,-0.0232244,1.44231,0.700391,1.28959,0.453736,0.721368,1.09928,1.57731,0.0782247,-0.361879,0.323532,0.304838,-0.0878356,0.948462,-0.692229,0.0242277,0.726015,0.400607,1.28947,1.18719,1.05118,2.58282,0.407268,0.663513,0.914334,-0.0213478,0.355999,0.68527,0.262369,0.600046,0.00499003,0.188897,1.63782,0.91073,1.33565,0.463726,0.782532,1.61929,0.927284,0.0227859,0.077488,0.39207,1.17651,0.36863,-0.55833,-0.19876,-0.159473,-1.12919,0.00396782,0.0169168,0.361788,0.123449,1.03813,0.630303,0.373428,1.80173,0.228188,-0.658898,0.590202,0.438995,-1.17387,-0.932469,-0.737756,-0.718974,-1.07264,-0.612814,1.58757,0.152561,0.321299,1.11263,0.250847,-0.074605,-0.582924,0.0532272,-0.439045,-0.126337,-1.20151,-0.202401,-0.820005,-1.06033,-0.22984,-0.0273807,0.186773,-0.226707,0.284256,0.237977,0.691969,0.817217,0.26282,-0.10859,-0.206544,-0.386705,-1.52206,-2.02954,-1.14722,-0.135538,-1.50842,-1.01051,-0.0975505,-0.237705,0.806043,0.236212,0.536693,-0.0590847,-0.334883,-1.63869,-1.62981,-2.63741,-2.01117,-1.82996,-1.12336,-1.7557,0.30829,0.27296,-0.82877,-1.17658,-1.0033,0.0579144,-1.0492,-0.727503,-0.487545,-0.847152,-0.848771,-2.19515,-1.07122,-1.0053,-0.723576,-0.609799,-1.6469,-2.11761,-0.227995,0.665688,-0.671644,-0.680457,-0.196794,0.180117,-0.252868,-1.65247,-1.44204,-1.70784,-1.13256,-1.02754,-1.90619,-1.66402,-0.740782,-0.754758,-0.817442,-0.42368,0.315508,-0.264523,-0.242044,-0.838538,-0.272487,-1.20361,-0.962235,-1.17408,-1.57068,-1.79884,-1.21156,-1.14616,-0.109639,-0.974548,0.214988,0.659938,0.433832,0.5086,-0.147471,0.144961,-0.0368026,-1.49526,-0.943895,-1.66375,-2.18576,-1.12494,-0.790033,-1.29041,-0.331425,0.00880753,0.0471173,-0.0189096,0.887985,1.62984,-0.706478,0.779573,-0.634192,0.229626,-0.0108897,-1.11175,-1.27107,-1.01784,-0.776899,-0.683821,0.489659,-0.74293,0.247259,1.19447,0.753459,0.7519,0.559383,1.04828,0.576575,-0.95279,-1.10509,-0.842375,-0.728582,-0.0282508,-0.454741,0.683226,1.33261,0.0204476,0.93226,1.65899,1.28549,1.3367,0.723369,0.4362,0.596617,0.759994,-0.746504,-0.39973,0.685989,-0.454716,-0.0454575,0.635908,0.866117,0.801286,1.08321,2.3409,0.928276,0.598967,1.85917,1.63321,-0.056498,0.723337,0.170387,-0.232098,-0.072718,1.13381,0.741677,0.97546,1.26428,0.873023,1.22816,1.40598,0.922237,1.62396,1.78272,0.788508,0.113918,-0.067899]],"k":16,"kappa":4,"lr":0.001,"m":256,"residual":[[0.00285578,-0.00150598,-0.00277139,-0.00329538,-0.00125747,0.00212926,0.00221033,0.000901572,-0.00175175,0.00138414,-0.000651438,0.000956131,0.00408759,-0.000733026,-0.00302528,0.00349316,-0.000674866,-0.00075298,-0.00371228,0.00101574,0.00157944,-0.0000700556,0.00155507,-0.00147853,0.00196386,0.000769009,0.00270791,-0.0041996,-0.00338475,0.000881169,-0.000146548,-0.00272446,-0.000675743,0.00103182,0.00150427,-0.000178383,-0.000445342,0.00039357,-0.000547657,0.00347208,-0.00109779,-0.000098229,-0.000397777,0.00320252,-0.00085506,0.00208835,0.000308987,-0.000390302,-0.00357367,0.000555296,0.00409749,-0.000599699,-0.00502196,0.00144277,-0.00153559,-0.00270088,-0.000205737,-0.00186175,0.00288291,0.00116909,0.00194343,-0.00060353,0.000410338,-0.000548341,0.00104895,-0.00400452,0.000352211,0.00245743,0.00378202,0.00203122,0.00065562,-0.00303697,0.000688793,-0.00352374,-0.00136886,0.0000337951,-0.0000654407,0.00228578,-0.000015279,-0.00194436,-0.000365047,-0.000886073,0.00282068,-0.0022754,-0.000306092,0.00250726,-0.00104579,0.00142381,0.000698683,-0.000067638,-0.00293069,0.000611797,-0.000525279,0.00104023,-0.00247759,0.00144779,0.00168345,0.00313937,-0.000660468,-0.00110654,0.00208146,-0.00182764,-0.00144923,-0.000340487,-0.00197645,0.00319725,0.0022691,-0.00396487,-0.00386806,-0.000837059,0.001503,0.00190869,0.00340114,0.00118176,-0.00150208,0.00149325,-0.00165506,-0.00101424,-0.00256878,-0.00118352,-0.000663837,-0.00061221,0.00402082,0.000604712,0.00102932,0.00055995,0.00332269,-0.00184444,0.00145951,-0.00185065,-0.000516446,0.000656244,-0.00312376,-0.00127849,-0.000567288,0.000367268,-0.00114164,0.00490683,0.00300371,-0.00517904,-0.000540398,0.000342141,-0.000059791,0.00206943,-0.00639186,-0.00277066,0.00251822,0.00192273,0.00412585,0.00292764,-0.00288714,0.00181034,-0.000768272,0.000266813,0.00000781585,-0.000997549,-0.0010377,0.00154561,-0.00107339,0.000459671,0.00100577,-0.00102916,-0.000535717,0.00233149,-0.00337815,-0.00133243,-0.00267274,0.000431032,0.00539958,-0.00246769,0.00244526,0.00283884,-0.00426674,-0.00265942,0.00000308688,-0.00190476,0.000655485,0.00286371,0.00157475,-0.000191934,0.0013726,0.000977114,-0.00222737,-0.00086594,0.00130091,0.000250622,0.00104939,0.00219541,-0.00441863,0.00338072,-0.003407,0.000416374,0.000677964,0.0000524744,0.000689271,-0.000847034,-0.00122122,-0.00000915812,0.000504903,-0.00125721,0.000718828,-0.00168733,-0.00116621,-0.000501917,0.000849083,-0.000684323,0.000708178,0.00314221,-0.00103658,0.00252363,-0.00271665,0.00123396,-0.000431647,0.00418903,-0.00102949,-0.00166032,0.00212743,0.000857149,0.000197176,-0.00477878,0.000843567,-0.000165189,0.00021152,-0.00153129,0.00261933,-0.0000431313,-0.000533233,-0.00318997,-0.000503081,-0.0023296,0.00255685,0.000283867,-0.00145602,-0.000640559,0.0025991,-0.0000444741,-0.000367599,0.003361,0.000383172,0.00145198,-0.00105442,-0.00110042,0.00136663,-0.00039367,0.000445966,-0.000371854,-0.000210069,-0.000444016,-0.00277447,0.00249549,-0.00128176,-0.00244998,0.000126332,-0.00133003,0.00251666,0.00128159],[0.000155662,-0.00045643,0.00256822,-0.000157683,-0.0015672,-0.00222434,0.0024247,-0.00220723,-0.00155052,0.00207556,0.00218811,-0.00187957,-0.000881524,0.00217122,0.000528344,-0.000927589,0.00013031,0.00063602,-0.00248582,-0.00239178,0.00180451,0.00303419,0.00129676,-0.000919103,-0.00191933,-0.000449188,0.0015401,0.00196946,-0.000546923,0.000302843,-0.00335086,-0.000696569,0.00253975,-0.000616332,0.000625716,0.0015548,0.0014449,0.0000525515,-0.00121926,-0.00437711,-0.00232949,-0.000590028,0.00149504,0.000507104,0.00241565,-0.00227543,-0.00336544,0.00141183,0.00379158,0.000652243,-0.000813593,0.00206983,0.00313231,-0.00208312,-0.000324132,0.00239194,0.000889216,-0.00117616,-0.000164751,-0.00132018,-0.00245931,0.00108826,-0.00211524,0.000228938,-0.00140157,0.0013166,-0.000273351,-0.0000965521,-0.00267879,0.000829928,-0.000542975,-0.00129867,0.00108341,0.00201014,0.00351128,0.000494251,0.000525578,-0.00185148,-0.00137114,0.00224441,-0.00100268,0.00346064,-0.00263476,-0.000501976,-0.000588633,-0.00155935,-0.000839523,-0.000615658,0.000107894,-0.000394219,0.00186126,0.00478294,0.00132926,0.00067182,-0.00205945,-0.00113446,-0.00339377,0.000999396,-0.00288053,0.00147221,-0.00136238,0.000895147,0.00124502,-0.00354025,-0.00134579,0.00096656,0.00120885,0.00184448,-0.000449488,0.0000309651,0.00376149,0.000561422,0.00177385,-0.000434226,-0.00295648,0.000944915,0.00106212,0.00181723,-0.00190529,-0.00155482,-0.00449371,0.000923568,0.00140858,-0.00157571,-0.00112052,-0.000669226,0.00294838,0.00159547,0.00208192,-0.000466025,-0.00102891,0.00209936,-0.00337773,0.00100738,-0.0025708,0.00164562,0.00113839,-0.00160843,0.000650976,-0.00201169,-0.00180325,-0.000459664,-0.0011641,0.00236136,0.00458015,0.000431809,0.000427722,0.00193593,-0.00019011,0.00135081,-0.00331441,-0.00094483,-0.00264564,-0.00338886,0.00233102,-0.000176666,0.00356398,0.00343894,0.00030627,-0.000392926,-0.00105979,-0.00441765,-0.000589063,-0.0000510142,-0.000829418,-0.00140463,0.000385659,-0.000159299,0.000872762,-0.00135477,0.00439439,0.00172825,0.00033121,-0.00090922,-0.00128285,0.00221905,-0.000192292,0.00070274,0.00140004,-0.000547021,0.00100744,-0.00326681,-0.00152866,-0.00352002,-0.000537807,-0.000630144,0.00366398,-0.0014711,0.000324513,0.000812334,0.00271771,0.000797844,0.00134258,0.00340882,-0.00352339,-0.00134179,-0.000934141,-0.000296014,-0.00139873,0.00203704,-0.00128203,-0.0012878,0.000999736,-0.0013258,-0.00186399,-0.00229271,0.000124658,0.00250413,0.00214295,0.0015316,0.000944667,-0.000332551,0.000648878,-0.00155353,0.00124301,0.00295366,-0.00226532,0.00361053,-0.00334377,-0.000605293,-0.00124468,-0.000577166,0.000085224,0.00322634,-0.00136428,-0.00128837,-0.00101989,-0.000738914,-0.00101894,-0.00250254,0.000561192,-0.000311089,0.00184089,0.0022344,-0.00342926,0.0027508,0.000561486,0.00201088,-0.000755503,0.000679068,0.000477414,0.00201315,-0.00190633,-0.00189855,-0.00120096,0.00201206,0.00236854,-0.00289533,0.000421833,-0.000690126,-0.00107886,0.000481561,0.00313933,0.000617961,-0.00146205,-0.00179667],[-0.00011132,-0.000568539,0.00122699,0.0018319,-0.000365286,0.000459993,0.00271407,0.00210368,-0.00214957,-0.00305537,-0.0027744,-0.0034077,0.00102224,-0.00212571,0.00186548,-0.00103199,0.00260986,0.00203642,0.00114124,0.00176211,-0.00170972,-0.00407712,-0.000284646,0.00165414,-0.00190677,0.00194016,0.00175195,0.000708116,0.000901607,0.000104399,0.000487829,-0.00242391,0.00215124,0.000662843,0.000998582,-0.00162139,-0.00312455,0.00230831,-0.00310553,-0.000801987,-0.000327321,0.000440192,0.000651603,0.0000249394,-0.00273168,-0.000342688,0.000105921,0.00143781,0.000911671,0.0027725,0.00224096,-0.00194737,0.000775452,0.00154607,-0.000345128,0.00368403,-0.000462289,-0.00198434,-0.00300351,-0.000449756,-0.00051678,-0.000427004,-0.00419034,0.000163584,0.00234238,-0.00134745,0.00105207,-0.00148944,-0.00198562,0.00227441,0.000962115,0.00122564,0.00407695,-0.000623856,-0.000686551,-0.000380818,0.00220894,0.00123262,-0.00242451,-0.00226126,0.000166634,0.000470728,0.00044165,0.000650289,-0.000779816,0.000886296,0.000992319,-0.00203786,-0.00271928,0.000310825,-0.000944957,-0.00297458,0.0014799,0.000795974,0.00275866,-0.00012489,0.00014268,-0.00288898,0.00282524,0.00124195,0.00180143,-0.000481669,-0.0000919234,0.000694172,-0.00146286,-0.001482,0.00409361,0.000813475,-0.00121818,-0.00264554,-0.00210788,0.000953214,-0.00156944,-0.00176596,0.000036924,0.0012319,0.00313665,-0.00102214,-0.00072633,0.00145214,-0.000218625,0.00246096,-0.000125283,-0.00183459,-0.00059092,-0.00227537,-0.000238579,0.00176666,0.000881179,0.000507563,-0.00186044,-0.000873674,-0.000185664,0.00102184,0.00551615,-0.000983409,0.00219944,-0.00206967,-0.00191055,-0.003859,-0.00155541,0.00202455,-0.00018018,0.00223723,-0.00126477,0.00180774,-0.00149028,0.00134595,0.0027972,-0.000966853,-0.00324258,0.00310528,-0.00233123,-0.00173809,-0.00123846,0.00120744,0.000757617,0.000695852,-0.00115007,-0.000971862,0.00108143,0.00279817,-0.00299708,0.0020451,0.00151341,0.000953677,-0.00171014,-0.0000619815,0.000575055,-0.00142586,0.00227591,-0.000966235,0.00311038,-0.00290452,-0.00260302,-0.00359754,0.00166482,-0.00153108,-0.00132926,0.00216865,0.00384281,-0.0011228,0.00312703,0.00148159,0.000370725,-0.00200682,-0.00244911,0.000480861,0.000597929,-0.00107887,-0.00170839,-0.00238983,0.000926755,0.00153717,0.00159852,0.00136144,-0.00097813,0.0032942,-0.00193966,0.00120962,-0.000737396,-0.0021665,-0.00121793,0.00118177,0.00228298,0.000772935,-0.00572172,0.00164287,-0.00405892,0.00407339,0.000669682,0.000544528,0.00226941,-0.000305253,-0.000259702,-0.000522891,0.00047506,0.000350207,0.000596931,-0.00657348,-0.000165868,-0.00324432,0.00533376,0.00138216,0.00156379,0.000555129,0.000854416,-0.00238144,0.000905958,0.000960132,-0.000473142,0.000647349,0.00116868,-0.000974632,-0.00327695,0.000593477,0.0020069,-0.00343321,0.00132259,-0.000447672,0.000320267,0.000850022,-0.0028932,-0.0000943915,0.00146093,0.00236645,0.00136142,-0.00215695,0.000216991,-0.000599433,0.000106918,0.00227962,-0.00268384,0.00120514,0.00108426,-0.00174148],[0.00278008,-0.000657551,0.000601485,-0.00469675,0.00273864,-0.0000887642,-0.000173439,0.00337139,-0.00346814,0.00213367,0.00247829,-0.00367898,0.000817519,-0.000516917,-0.00190371,-0.00242741,0.00158797,0.00244696,-0.00220668,-0.00188796,0.00164681,0.00484302,-0.0031958,-0.00301729,-0.00227497,-0.00223948,0.00230382,-0.00211587,0.00455499,0.000989893,0.0021803,0.00144353,-0.00188807,-0.00255916,0.00231131,0.00295315,0.00142096,0.000622117,0.000892642,0.00121016,-0.00197087,0.000977321,0.000885364,-0.00276566,-0.00466084,0.000333796,-0.00339179,-0.00408322,-0.00289463,0.000963518,0.000356126,0.00047782,0.00366889,0.00108615,0.00302956,0.0000645567,0.00170406,0.00256525,0.00326297,-0.0014548,-0.00363584,-0.00116003,0.00141362,0.00178348,-0.00128194,-0.000814697,0.00169634,-0.00121988,-0.000145905,0.000444081,-0.0018422,-0.00303084,0.0039859,-0.00218615,-0.00301204,-0.00115939,-0.000111138,0.000357377,-0.000736408,0.00115881,0.00385177,-0.000230588,0.000687087,0.00361747,-0.00126274,-0.00157365,-0.000484522,0.000755005,0.00285442,-0.00243083,-0.000472187,-0.00145765,-0.00252896,-0.00200556,0.00211352,0.000641979,0.000626323,0.00144632,0.000937484,0.00078611,0.00373896,0.00104622,-0.00613578,0.00063761,0.0013927,0.000347885,-0.00198651,-0.00291246,-0.000679712,0.000645984,0.00106205,-0.00457428,0.0000136034,0.00203297,0.00101917,0.00478915,-0.00193602,-0.00295784,0.00147005,0.00281235,-0.00240803,-0.000172377,0.000243404,0.000628801,0.0023736,0.00463344,-0.0014849,-0.000972387,-0.00349404,0.0012128,-0.00280666,-0.000243714,0.000408647,0.00217085,-0.000750903,-0.00169059,-0.00203344,0.00132715,-0.00143814,-0.000594463,0.000892923,0.00204323,0.00179685,-0.00347204,-0.00273931,0.000352704,0.000894871,0.000368091,0.0026129,0.00320444,-0.0000466488,0.000588092,0.00257489,0.00221354,-0.0015908,-0.00211871,-0.00302815,0.000660188,-0.000499259,-0.000656412,-0.00241872,0.000658175,-0.00236886,-0.00168373,-0.0000319976,0.00162624,0.000688511,0.00198639,0.000375876,-0.00041603,-0.000275741,-0.00151104,0.000340916,0.00264826,0.00169132,0.00161162,0.000868787,0.000535935,0.000246506,-0.00217218,-0.00227905,-0.00193555,0.00188764,-0.00130001,0.00126332,-0.00234304,-0.00058331,-0.00201079,0.00136345,0.00394793,-0.00256686,0.000519003,-0.00176936,0.00132199,0.00324929,-0.00124324,0.00181528,-0.000489658,-0.00176923,-0.00112647,0.00198397,0.000444584,-0.000612852,-0.000834381,-0.00178066,0.000780244,0.00381967,-0.000910807,-0.00268564,0.000214544,0.000544616,0.00168293,-0.0029495,0.000165208,-0.00211444,0.00249499,0.00129813,-0.000558272,-0.00257461,0.00388941,-0.000220824,0.00202063,-0.00366548,0.000610659,0.00200674,-0.0039281,0.00112361,0.00322436,-0.00232989,0.000459509,0.0000488313,-0.000498002,-0.000474202,-0.00102119,-0.000761006,0.000665772,0.000933189,-0.00196936,-0.000507718,0.000881148,0.00306545,0.00304169,0.000481892,0.000719207,-0.00243941,0.000534454,-0.00349887,-0.000501169,-0.00241859,-0.00135157,0.000430372,0.000537304,0.00263415,0.000515431,-0.000979749,0.00133614],[-0.00260281,0.0041455,-0.003594,0.00201876,0.00172617,-0.000609735,-0.000409597,-0.00259712,0.000536134,0.00131213,-0.000961909,0.000890714,0.00131459,-0.00169746,0.00147155,0.000599699,-0.000245901,0.0010874,0.0001167,-0.00200796,-0.00187827,-0.000158189,0.00159639,-0.000260309,-0.00139876,-0.000509604,-0.00292094,0.00175608,0.00233086,0.00288,0.00136329,-0.00171754,-0.000580595,-0.0010666,0.000630854,0.00250394,-0.00503797,0.000710292,0.000424676,0.000515908,0.00130922,-0.00172924,0.00189918,0.000683232,-0.000348321,0.000112102,-0.000774755,0.000278725,0.0012751,-0.00242163,-0.000538328,-0.000759147,0.000126699,-0.000338429,-0.00324696,0.00121929,0.00270821,-0.0010075,0.000756159,-0.000890317,0.000929046,0.00016326,0.00281807,-0.000413541,0.00201731,-0.000641029,-0.000240746,0.00108204,-0.00234855,-0.000842232,0.00257746,-0.00042466,-0.00173907,-0.00192748,0.00106559,-0.000233773,0.000940544,-0.00476534,-0.000848173,-0.00086604,0.00212282,0.00231073,0.00180463,-0.003569,0.00204117,0.00268232,-0.00135919,0.000721405,0.000957516,-0.00076345,0.000274112,-0.00163105,0.000256034,-0.000343073,0.000425159,0.00365296,-0.00223554,0.0022284,0.0000551647,-0.000101262,-0.00434428,0.0018238,-0.00242259,-0.00198579,-0.000634575,-0.000734692,-0.00180688,0.00282968,0.00127411,0.0047569,-0.00154091,-0.00163031,0.00387327,-0.00259061,0.0004992,-0.000671762,-0.000591251,-0.00291217,-0.00145277,0.00381148,0.000205157,0.00289602,-0.00139727,0.000129859,0.00114431,0.00110473,-0.000549022,-0.0000420562,0.00200337,0.0004528,-0.00373779,-0.00141737,-0.00241473,-0.0035964,0.00140191,0.00192315,-0.00176931,-0.00086987,0.00371576,-0.000571605,-0.000442403,0.000340135,0.00230492,0.000686446,0.00180715,-0.00228964,0.00134594,-0.00056998,-0.00202823,0.00066343,0.00461608,-0.000045483,0.00156799,-0.00103812,-0.00362401,0.000560391,-0.00255412,-0.000989503,0.00338399,-0.00413683,0.000192119,0.000513807,0.000144222,-0.0016521,-0.0000843878,-0.00234013,0.0026885,-0.000060434,0.00227598,-0.000909435,0.00143504,0.00110506,-0.00253779,0.00294169,0.00519966,0.00194294,-0.00285956,-0.00184136,-0.00460222,-0.0017631,0.0034078,0.00193457,-0.00206164,-0.00266524,-0.00143721,0.00202544,0.00083991,0.00283981,-0.00143895,0.0000916918,-0.00158244,-0.000552025,-0.000777707,-0.000746809,0.00102825,-0.00109079,-0.000423781,-0.00190972,0.00229075,0.00333591,0.00381193,0.00153747,-0.000156386,-0.00194158,-0.0021846,-0.000234095,-0.00256509,0.00143169,0.000398296,-0.0028063,-0.000577037,0.00152923,0.00211121,0.000205418,0.00100866,0.000345574,-0.00124492,-0.0000861114,-0.000180696,-0.00163883,-0.0000311221,-0.000611881,0.000148799,-0.000626159,-0.000704182,-0.00431378,0.00394989,0.000688986,0.000119317,0.00276515,0.00125664,0.000251946,0.000645655,0.00270389,-0.0000341428,-0.00317376,-0.00341713,0.0024246,-0.000630629,0.0009345,-0.000204344,0.000965805,-0.00149902,0.00123092,-0.00411827,-0.0000348899,-0.00208234,0.000720261,0.000990271,0.000578452,0.00125431,-0.00249068,-0.00107904,0.000675826,0.00189138,0.00165279],[-0.00405745,0.00194773,-0.000850918,0.00262214,0.000788667,0.00178347,0.000582098,-0.00134557,-0.000893948,0.00141565,-0.000985537,-0.00401949,-0.000197514,0.000314542,0.000750607,0.00125506,0.00385081,-0.00314457,0.00334742,0.00121316,-0.000286081,-0.00302055,-0.00023807,0.000749179,-0.000600769,-0.00151589,-0.00185141,-0.00230125,0.000514077,0.000331719,0.00107126,-0.0024129,0.00180462,0.00410759,-0.000628899,0.00150643,-0.00336969,0.00410464,0.000688882,0.00199481,0.000222866,-0.0034165,0.000851793,-0.0000319861,0.0019417,-0.0014674,-0.00574829,0.000255637,-0.000191663,0.0020056,-0.0011254,-0.000135118,-0.000100683,-0.000834184,0.00173885,0.0000184738,-0.000459495,-0.000909796,-0.000228317,0.00336686,-0.000275587,-0.00121335,0.000215888,0.00150596,-0.000166032,0.000561469,0.000922132,0.00110359,-0.00000780757,-0.00326331,-0.000754079,-0.00182639,0.000938734,0.00206609,-0.00121162,0.00106083,0.000386235,-0.0007548,0.00256053,-0.0010726,-0.00144991,-0.00174954,0.00215593,-0.0013727,-0.00134584,0.00234355,0.00093631,-0.0000603297,-0.00144323,0.000717329,-0.0018869,0.000589637,0.000451895,-0.0000309181,0.000434119,0.00121532,-0.00366039,-0.00221819,0.00124698,-0.000559071,0.00138086,0.00302424,0.00270032,0.0015517,-0.00022782,0.00192667,-0.00161292,-0.00000920249,-0.000880676,-0.00126151,-0.00174985,0.000615944,-0.00321724,-0.00396332,0.0019384,0.000821301,0.00170803,-0.000113643,0.00110782,-0.000770028,-0.000800142,-0.00197106,0.00381385,-0.00165324,0.00335411,-0.00219544,-0.00162615,0.00254367,0.00122057,0.000828341,-0.00189479,0.00180022,-0.00188883,0.000359114,-0.00172977,0.0027227,0.000400905,0.0022429,-0.000754106,-0.00187252,-0.00317242,0.0000579046,0.00194654,0.000676644,-0.00174967,-0.00117474,-0.00111016,-0.000208051,0.00130558,0.000275567,0.00149275,0.00103137,-0.00179385,0.000478802,-0.00163478,0.000598748,0.00132087,-0.00105591,-0.00210497,0.000956004,0.000306865,0.0028536,-0.000770484,0.00376418,0.00179444,-0.00253861,-0.000911496,0.000450826,0.000119623,-0.00144362,-0.00332181,-0.00035495,-0.000211612,0.00135803,0.000582206,-0.00194198,0.00173711,-0.000979419,0.00211164,-0.000705222,-0.000845379,0.000252881,0.0018211,0.000834115,-0.00224292,0.00228879,-0.000956096,-0.00248489,-0.00299154,0.00297326,0.00339942,-0.000733079,-0.000261174,0.000168808,-0.00227878,0.000429963,0.00119407,-0.00082292,0.000413394,-0.000976938,0.00178702,-0.00216661,-0.00136636,0.00232004,-0.000256209,0.00409363,0.000684607,0.00145254,0.000357941,-0.00250555,0.000821966,-0.00306683,-0.00438972,-0.000356775,0.000849511,0.00133328,-0.000300736,-0.0012437,-0.00134453,0.0000280897,0.00101924,-0.00087727,0.000399466,0.00150687,0.00166145,0.00166217,0.00107383,0.00293755,-0.00220861,0.00297721,-0.000155726,-0.00332226,0.0000782012,0.000536662,-0.00268012,0.000075022,-0.00429713,0.00352888,-0.000336754,0.000221883,0.00219296,0.000345613,-0.00214914,-0.00345581,0.0017653,0.00207382,-0.0003591,-0.0034698,0.00121434,0.000550815,0.00183772,-0.000965113,-0.0035488,-0.000452177,0.00219721,0.0027361],[-0.000140332,-0.000579873,-0.00308737,0.0028772,-0.000444266,-0.00101243,-0.00141429,-0.000474599,0.00109976,-0.000545244,0.00286506,0.00141528,0.000814773,0.0026338,-0.00239059,0.000282236,0.00157608,0.00163283,-0.000838782,-0.00236587,-0.0036472,0.00109299,-0.0000174457,-0.000142981,0.000616565,0.000222988,-0.00062934,0.00194113,-0.00218931,-0.00169131,-0.00200926,-0.0000500045,0.00191068,-0.000840176,0.000988464,0.00257238,0.00422385,0.00238109,-0.000343709,-0.00235372,-0.00440056,-0.000615925,0.000726891,-0.000406896,0.00429988,-0.00219583,-0.000884772,-0.00426935,0.00256186,-0.000968311,-0.00338967,-0.000126484,0.00311265,0.00414532,-0.000266207,0.00150379,-0.000562596,-0.000126121,-0.000684892,0.00351953,-0.000971448,-0.00357564,-0.00175701,-0.000710933,0.000876314,-0.000586873,0.000918564,0.000943504,-0.00023391,0.00181522,-0.00140749,-0.0016432,0.00219487,0.000390329,-0.00556055,-0.000766815,0.00115492,0.0029029,0.00125864,0.000486867,0.00183333,0.00174342,0.00197514,-0.00260059,-0.000538333,-0.00337147,0.00174334,-0.00168997,-0.00234736,0.00330327,-0.00239651,-0.000994755,-0.000145586,-0.000446554,0.00223861,0.00125264,-0.00186641,0.00174855,-0.00034103,-0.000862865,0.00146443,0.00117592,0.000601025,-0.00135639,0.000483713,-0.00211025,0.00175686,-0.000369555,-0.0000344328,0.0014539,-0.000383722,0.000877486,-0.00156275,0.000331813,0.00153644,-0.00402445,-0.00133887,-0.000312097,-0.000898075,0.000315021,0.0016335,-0.000485395,0.000230757,0.000130632,0.00130319,0.00083915,0.00235653,0.00157884,-0.00175663,0.00000438157,0.00144018,-0.000174506,-0.00591042,0.00318137,0.000518205,0.000243592,0.0003228,-0.00193623,-0.000275023,-0.00103944,-0.00199857,-0.000105584,0.000378191,0.00172099,0.000056495,-0.000826786,0.000558595,0.00148337,0.00127139,-0.00117105,-0.000572106,-0.00135122,0.00345592,0.00115358,0.00161876,-0.00276635,-0.0000505331,0.00203294,-0.00322291,-0.000868812,-0.00444348,0.00543593,-0.0000267352,-0.00143437,0.00143417,-0.00106416,0.0010893,-0.00106337,0.00220443,-0.00133101,0.000322547,-0.001959,0.000423014,-0.000115308,-0.00238239,0.00372494,-0.000276304,0.000087633,0.00194655,-0.00184911,-0.00214146,-0.00132969,0.00207637,-0.00204547,0.00505723,0.000320388,0.000569724,0.000745454,-0.00148477,-0.000311458,-0.00146231,-0.000447481,-0.000729573,0.00258878,0.000160654,-0.000173946,-0.000519332,-0.0016513,-0.00199087,-0.000549378,0.0023783,0.000916839,-0.00126039,-0.00155495,-0.000583071,0.00208801,0.00206536,-0.000697451,-0.00111444,0.00107871,-0.00139366,-0.000359522,0.00332736,-0.0011063,0.00039797,0.000145815,0.00199875,0.000696749,-0.0025733,-0.00183273,0.00137515,0.000177531,-0.000640744,-0.00232644,0.000900048,-0.000495243,0.00182324,0.0011058,-0.00129005,-0.00197359,-0.000563677,0.00127435,0.00193982,-0.0032648,0.00324462,0.00104277,-0.00014639,-0.00342817,-0.00164091,0.00264679,0.000408572,0.000395347,-0.000549754,-0.000943057,-0.000708699,0.00162172,0.00147015,0.000947579,-0.000863682,0.000322691,0.0025499,0.00113985,0.00205659,-0.00341781,-0.00459238,0.000895659],[-0.00127424,-0.00813609,0.000600988,0.00137156,-0.0000835972,-0.000337098,-0.00353211,0.00181472,0.0048441,0.00513992,0.000201106,0.000565059,0.00197046,-0.00177977,-0.000453207,0.00212193,0.00134175,-0.000257832,0.00063397,-0.00162895,-0.0000312357,0.00292937,-0.000682883,-0.00100364,-0.000544216,-0.00224112,0.00132108,-0.00329076,-0.00226983,-0.0000744181,-0.0047793,0.0021213,0.00158661,-0.0011288,0.0011579,-0.0008278,-0.000222507,0.000779125,0.00290929,-0.00102305,0.00331962,0.000865037,0.00196439,-0.00106924,-0.000238926,0.00365477,-0.00194426,-0.00296589,0.00425747,-0.00432383,0.00187928,-0.00128713,-0.000163957,-0.00330377,0.0000377304,-0.00222352,0.00045546,0.00152103,-0.00226859,0.00263631,0.00249353,-0.00368893,-0.00046677,-0.00110787,0.00758133,0.000305202,-0.00267095,0.000424814,-0.00270595,-0.0017094,0.00240019,-0.00039147,-0.000237966,0.00169964,0.00343565,0.0000277032,-0.00293048,-0.000830892,-0.0000684587,-0.000986124,0.000713054,-0.00209945,0.00325093,0.00058724,-0.00366693,-0.000222,0.00134725,0.000854093,0.00328309,-0.00191655,-0.00288934,0.00216872,-0.000372085,-0.000162017,0.00242019,-0.00125652,-0.00195446,-0.00150372,0.00233143,0.000580844,-0.000623275,-0.00336802,0.00229251,-0.00133823,0.00216877,-0.0000775734,0.00134008,-0.000769498,0.00132791,-0.00371716,-0.00107898,0.00153727,0.00344934,0.00130683,-0.00115122,-0.00108316,0.000350886,-0.00235287,0.00218759,0.00415219,-0.00107389,-0.00462352,-0.0016984,-0.000527482,-0.00129182,0.00237696,0.00190597,-0.0018599,0.00227312,0.00327034,-0.00359161,-0.000644503,0.000112521,0.00280472,-0.00328928,-0.000730243,-0.00146549,-0.00180364,-0.000380149,0.00161247,0.00141755,0.00289674,-0.000800711,0.000573557,0.00140773,0.00336232,-0.00141289,0.000518122,-0.00146936,0.00136591,-0.00255807,-0.00178328,0.000715938,-0.00158745,0.00133697,-0.00101401,-0.00402175,-0.000792631,0.00284677,0.00142908,0.00172942,-0.00507672,-0.000565625,0.00164165,-0.000158652,0.00195722,0.00124926,-0.00095896,0.00204861,0.00306786,0.00149244,0.00119046,-0.00263091,0.0000510499,0.000229937,-0.00237933,-0.00111299,-0.00180783,0.00194112,-0.00260367,-0.000152491,-0.000684899,0.000476348,-0.000708894,-0.0024072,-0.000102485,0.00334094,0.000376252,0.00156391,-0.00375114,0.00315224,0.00197078,-0.000648184,0.00103153,0.00313239,-0.000445646,-0.00250083,0.00140743,-0.000704193,0.000848122,-0.000800586,-0.00321498,-0.00105104,0.00101017,-0.00227846,0.00329688,-0.0040707,-0.00174283,0.000614819,0.000486021,0.00174069,0.000487681,0.0034521,-0.000752788,0.00144171,-0.00108161,0.00261335,-0.000107266,-0.000296133,0.000310531,-0.00149791,-0.000415677,-0.00287086,-0.000267751,0.000195711,0.00162968,-0.000532276,-0.002298,0.000188852,-0.00095912,-0.00163096,0.00366576,-0.000338877,0.00591487,-0.000673449,-0.00212891,-0.000546533,-0.00176233,0.00135804,-0.00123232,-0.000204346,0.00130131,-0.00056789,-0.0000210154,-0.0016536,0.00136234,0.002817,-0.00101631,-0.00259134,-0.00041948,0.00279357,-0.00111502,0.00220291,-0.00249175,-0.00110162,0.00131497]],"seed":2026,"source":"scripts/chain_reference.py (illustrative: a seeded NumPy generator, not a measured run)","workers":8};
+const BYTES = {"dense":31666944,"bandPayload":1979184,"bandWire":13854288,"topkPayload":3957960,"topkWire":27705720,"switchUp":31666944,"workers":8};
+window.CitChain = { chainRun, chainStages, diagramSvg, viewSvg, bytesSvg, legendSvg, blockLabel, BLOCKS, TAG, INPUTS, BYTES };
+})();
+</script>
+<script>
+// The chain animation's controller for the static decks: play/pause, step back and forward, a scrub bar, speed
+// (0.25x to 4x), reset, Space and the arrow keys when focused, an aria-live caption, no auto-play under
+// prefers-reduced-motion, paused off-screen. Frames come from window.CitChain (cit_chain.js, compiled from the
+// results site's src/lib/chain/model.ts and render.ts). <div data-cit-chain="full|light" id="..."> hosts one.
+// window.citChainAnims[id] exposes each one to the browser checks.
+(function () {
+    'use strict';
+    const C = window.CitChain;
+    const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.citChainAnims = {};
+    document.querySelectorAll('[data-cit-chain]').forEach(function (root) {
+        const light = root.getAttribute('data-cit-chain') === 'light';
+        const id = root.id;
+        const sel = (name, label, opts, val) => `<label class="cc-param">${label} <select data-p="${name}">` +
+            opts.map(([v, t]) => `<option value="${v}"${v === val ? ' selected' : ''}>${t}</option>`).join('') + '</select></label>';
+        root.innerHTML =
+            '<div class="cc-params">' +
+            sel('mode', 'Where the band is computed', [['E', 'E: pluggable, all-gather'], ['Eprime', 'E′: switch sums (hypothetical)']], 'E') +
+            (light ? '' : sel('planes', 'Bit planes', [['4', '4'], ['8', '8'], ['12', '12'], ['exact', 'exact input']], '8') +
+                          sel('enob', 'Readout ENOB', [['6', '6'], ['8', '8'], ['10', '10'], ['12', '12'], ['exact', 'exact']], '10')) +
+            '</div>' +
+            '<div class="cc-legend"></div><div class="cc-diagram"></div>' +
+            '<p class="cc-stage"></p><div class="cc-view"></div><div class="cc-bytes"></div>' +
+            '<div class="cc-controls">' +
+            '<button type="button" data-a="reset" aria-label="Reset">&#8634; Reset</button>' +
+            '<button type="button" data-a="back" aria-label="Step back">&#9664; Step</button>' +
+            '<button type="button" data-a="play" class="cc-play" aria-label="Play">&#9654; Play</button>' +
+            '<button type="button" data-a="fwd" aria-label="Step forward">Step &#9654;</button>' +
+            '<input type="range" min="0" max="15" value="0" aria-label="Stage">' +
+            '<select data-speed aria-label="Speed"><option value="0.25">0.25&times;</option><option value="0.5">0.5&times;</option><option value="1" selected>1&times;</option><option value="2">2&times;</option><option value="4">4&times;</option></select>' +
+            '<span class="cc-count"></span></div>' +
+            '<p class="cc-caption" aria-live="polite"></p>';
+        root.tabIndex = 0;
+        const $ = s => root.querySelector(s);
+        const scrub = $('input[type="range"]'), speed = $('[data-speed]'), playBtn = $('[data-a="play"]');
+        const P = { mode: 'E', planes: '8', enob: '10' };
+        let stages = [], step = 0, playing = false, visible = false, userPaused = reduced(), raf = 0, last = 0, acc = 0;
+        const STEP_MS = 2200;
+        function compute() {
+            const run = C.chainRun(C.INPUTS, { mode: P.mode, planes: P.planes === 'exact' ? null : Number(P.planes),
+                                               enob: P.enob === 'exact' ? null : Number(P.enob), seed: 1 });
+            stages = C.chainStages(run, C.INPUTS, C.BYTES);
+            scrub.max = String(stages.length - 1);
+        }
+        function render() {
+            const w = Math.max(260, Math.floor(root.clientWidth - 2));
+            const s = stages[step];
+            $('.cc-legend').innerHTML = C.legendSvg(w);
+            $('.cc-diagram').innerHTML = C.diagramSvg(w, P.mode, s.block, stages.slice(0, step).map(x => x.block));
+            $('.cc-stage').textContent = `Stage ${step + 1}: ${C.blockLabel(s.block, P.mode)} · source: ${s.tags.map(t => C.TAG[t].name).join(', ')}`;
+            $('.cc-view').innerHTML = C.viewSvg(s.view, w - 10);
+            $('.cc-bytes').innerHTML = s.bytes ? '<p class="cc-note">Bytes per worker per step, the whole model (the experiment&rsquo;s results.json' +
+                (P.mode === 'Eprime' && s.block === 'net' ? '; the simulation&rsquo;s results.md &sect;1' : '') + ')</p>' + C.bytesSvg(s.bytes, C.BYTES, w) : '';
+            scrub.value = String(step);
+            $('.cc-count').textContent = `${step + 1} / ${stages.length}`;
+            if ($('.cc-caption').textContent !== s.caption) $('.cc-caption').textContent = s.caption;
+            root.setAttribute('data-step', String(step));
+        }
+        function go(s) { step = (s + stages.length) % stages.length; render(); }
+        function tick(ts) {
+            if (!playing) return;
+            const dt = last ? ts - last : 0; last = ts;
+            acc += dt * Number(speed.value);
+            if (acc >= STEP_MS) { acc = 0; go(step + 1); }
+            raf = requestAnimationFrame(tick);
+        }
+        function play() { if (playing) return; playing = true; last = 0; acc = 0; playBtn.innerHTML = '&#10074;&#10074; Pause'; playBtn.setAttribute('aria-label', 'Pause'); raf = requestAnimationFrame(tick); }
+        function pause() { playing = false; cancelAnimationFrame(raf); playBtn.innerHTML = '&#9654; Play'; playBtn.setAttribute('aria-label', 'Play'); }
+        $('.cc-controls').addEventListener('click', e => {
+            const b = e.target.closest('button'); if (!b) return;
+            const a = b.getAttribute('data-a');
+            if (a === 'play') { if (playing) { userPaused = true; pause(); } else { userPaused = false; play(); } }
+            else { userPaused = true; pause(); go(a === 'reset' ? 0 : step + (a === 'fwd' ? 1 : -1)); }
+        });
+        scrub.addEventListener('input', () => { userPaused = true; pause(); go(Number(scrub.value)); });
+        root.querySelectorAll('[data-p]').forEach(s => s.addEventListener('change', () => {
+            P[s.getAttribute('data-p')] = s.value; compute(); go(0);     // the model re-ran: restart from stage 1
+        }));
+        root.addEventListener('keydown', e => {
+            if (e.target.closest('select, input')) return;
+            if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); $('[data-a="fwd"]').click(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); $('[data-a="back"]').click(); }
+        });
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver(es => es.forEach(en => {
+                visible = en.isIntersecting;
+                if (visible && !userPaused && !reduced()) play(); else if (!visible && playing) pause();
+            }), { threshold: 0.2 }).observe(root);
+        }
+        let rt = 0;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+        compute(); render();
+        window.citChainAnims[id] = {
+            get step() { return step; }, get playing() { return playing; }, get steps() { return stages.length; },
+            stage: () => stages[step], caption: () => $('.cc-caption').textContent,
+            set(s) { userPaused = true; pause(); go(s); },
+            params(p) { Object.assign(P, p); root.querySelectorAll('[data-p]').forEach(s => { s.value = P[s.getAttribute('data-p')]; }); compute(); go(0); },
+        };
+    });
+})();
+</script>
+<!-- cit-chain:assets:end -->
 
 </body>
 </html>

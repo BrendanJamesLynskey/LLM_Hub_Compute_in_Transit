@@ -1,5 +1,7 @@
 # Compute in Transit
 
+**The goal:** compress gradient traffic on the wire **without sending indices**, with the compression done **for free in the link**. A fixed frequency band needs no comparisons, so the optics can compute it in transit, and both ends already know which coefficients are sent. **What was found:** at this scale it is a negative result. A fixed band did not replace DeMo's top-k (deck 04), and a pluggable module computing it never breaks even with AdamW in the simulation (deck 05); summing the band at the switch pays only on slow WANs. The [live index](https://brendanjameslynskey.github.io/LLM_Hub_Compute_in_Transit/#chain) animates the proposed system end to end.
+
 Moving data has become the bottleneck in LLM training and serving. *Compute in transit* means doing useful work on data while it crosses a link, rather than after it arrives. A photonic link module (arXiv:2608.21536) has been demonstrated that does this: a QSFP56 pluggable with an integrated optical Fourier transform device, running FFT, NTT, MAC, and modular and floating-point arithmetic on data in the link. This series asks which LLM data movements such a module could work on, and how much work each needs per byte. It covers training as well as inference, and its strongest candidate is in training: compressing gradient or momentum updates sent between data centres.
 
 **Live index:** https://brendanjameslynskey.github.io/LLM_Hub_Compute_in_Transit/
