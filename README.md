@@ -1,3 +1,7 @@
+<!-- portfolio-strip:start (brief 40) -->
+<sub>**Brendan Lynskey** · [Portfolio home](https://brendanjameslynskey.github.io/) · [Interactive sites](https://brendanjameslynskey.github.io/#sites)</sub>
+<!-- portfolio-strip:end -->
+
 # Compute in Transit
 
 **The goal:** compress gradient traffic on the wire **without sending indices**, with the compression done **for free in the link**. A fixed frequency band needs no comparisons, so the optics can compute it in transit, and both ends already know which coefficients are sent. **What was found:** at this scale it is a negative result. A fixed band did not replace DeMo's top-k (deck 04), and a pluggable module computing it never breaks even with AdamW in the simulation (deck 05); summing the band at the switch pays only on slow WANs. The [live index](https://brendanjameslynskey.github.io/LLM_Hub_Compute_in_Transit/#chain) animates the proposed system end to end.
